@@ -1,1 +1,1 @@
-web:gunicorn payment.wsgi
+web: gunicorn payment.wsgi
