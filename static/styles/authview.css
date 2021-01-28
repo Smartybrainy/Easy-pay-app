@@ -1,0 +1,35 @@
+.auth {
+  margin-top: 3rem;
+  border: 2px ridge #ccc;
+  position: relative;
+  max-width: 25%;
+  min-height: 4rem !important;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 5px;
+}
+.auth-content {
+  position: absolute;
+  width: 100%;
+  min-height: 3.8rem !important;
+  color: #333 !important;
+  text-decoration: none;
+  background-image: linear-gradient(
+    180deg,
+    mediumseagreen,
+    skyblue,
+    pink,
+    olive
+  );
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.auth-content:hover,
+.auth-content:active {
+  color: #ccc !important;
+  text-decoration: none;
+  background: #333;
+}

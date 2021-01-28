@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<body class="jumbotron">
+    <div class="row justify-content-center">
+        <div class="col-4">
+            <form>
+                <script src="https://js.paystack.co/v1/inline.js"></script>
+                <button type="button" class="btn btn-block btn-warning" onclick="payWithPaystack()"> Pay with paystack </button>
+            </form>
+            <a href="/" class="btn btn-outline-primary btn-sm mt-4">&larr;back</a>
+        </div>
+
+        <div class="col-4">
+            <!-- Set up a container element for the paypal button -->
+            <div id="paypal-button-container"></div>
+        </div>
+    </div>
+
+</body>
+<!-- Include the PayPal JavaScript SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=AevVNCqAHI5ZPvfwdajeHTqAn4sByzBIx1zJmpJXUZH8daOSeUyRL_q4_q2nX1w0XPqPcp0StjhUwROV&currency=USD"></script>
+<!-- paypal js -->
+<script>
+    // Render the PayPal button into #paypal-button-container
+    paypal.Buttons({
+
+        // Set up the transaction
+        createOrder: function (data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '50'
+                    }
+                }]
+            });
+        },
+
+        // Finalize the transaction
+        onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+                // Show a success message to the buyer
+                alert('Transaction completed by ' + details.payer.name.given_name + '!');
+            });
+        }
+
+
+    }).render('#paypal-button-container');
+</script>
+
+<!-- place below the html form paystack inline js -->
+<script>
+    function payWithPaystack() {
+        var handler = PaystackPop.setup({
+            key: 'pk_test_404283612305d666d853106fd9387a56d2f008f1',
+            email: 'customer@email.com',
+            amount: 10000,
+            ref: '' + Math.floor((Math.random() * 1000000000) + 1), // generates a pseudo-unique reference. Please replace with a reference you generated. Or remove the line entirely so our API will generate one for you
+            metadata: {
+                custom_fields: [
+                    {
+                        display_name: "Mobile Number",
+                        variable_name: "mobile_number",
+                        value: "+2348012345678"
+                    }
+                ]
+            },
+            callback: function (response) {
+                alert('success. transaction ref is ' + response.reference);
+            },
+            onClose: function () {
+                alert('close');
+            }
+        });
+        handler.openIframe();
+    }
+</script>
+
+{% endblock content %}

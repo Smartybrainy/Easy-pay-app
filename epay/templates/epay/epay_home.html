@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+
+<body class="bs-success home-length">
+    <div class="container">
+        <section>
+            {% if user.is_authenticated %}
+                <a href="{% url 'accounts:profile-view' %}" class="naira-link" title="continue to pay...">
+                    <span class="naira-sign">&#x20A6;</span>
+                </a>
+            {% else %}
+                <a href="{% url 'accounts:auth-view' %}" class="naira-link" title="continue to pay...">
+                    <span class="naira-sign">&#x20A6;</span>
+                </a>
+            {% endif %}
+        </section>
+    
+        <section class="text-light text-center pay-text">
+            <h1>Easy Pay</h1>
+        </section>
+    </div>
+</body>
+
+{% endblock content %}

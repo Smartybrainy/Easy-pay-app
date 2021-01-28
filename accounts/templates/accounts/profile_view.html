@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<head>
+    <title>{% block title %}| Profile {% endblock title %}</title>
+</head>
+<body class="bs-success">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2 mt-3">
+                <button class="btn btn-sm btn-light rounded rounded-circle ml-3" id="bs-toggle-btn" title="go to account"><i
+                        class="fas fa-user"></i></button>
+            </div>
+        
+            <!-- logout button -->
+            <div class="col-sm-2 mt-3">
+                <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-light rounded rounded-circle ml-3" title="logout" id="bs-logout"><i class="fas fa-power-off"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- main section -->
+    <main class="container mt-5 ml-5">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <a href="{% url 'epay:make-payment' %}" class="btn btn-warning">Proceed to pay</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- For the profile modal -->
+    <div id="bs-modal">
+        <div id="bs-modal-content">
+            <div class="row text-light" id="bs-font">
+                <div class="col-12">
+                    <div class="rounded p-3">
+                        <span class="close float-right">&times;</span>
+
+                        {% if user.profile.image %}
+                        <div class="media justify-content-center">
+                            <img src="{{ user.profile.image.url }}" alt="Profile-img" class="img-fluid"
+                                id="image-size" />
+                            {% endif %} 
+                            <br />
+                        </div>
+
+                        <div class="media text-center">
+                            <div class="media-body" style="overflow: auto;">
+                                <h5 class="account-heading">{{ user.username }}</h5>
+                                {% if user.profile.gender %}
+                                <small>Gender: {{ user.profile.gender }}</small>
+                                {% endif %}
+                                <h5 style="word-wrap: break-word;">{{ user.email }}</h5>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="media mt-3">
+                            <div class="media-body">
+                                <p>
+                                    <a href="{% url 'accounts:account-settings' %}" class="bs-account-settings">
+                                        <i class="fas fa-bars mr-3"></i> Account</a>
+                                </p>
+                                <p>
+                                    <a href="#" title="view our privacy policy" class="bs-account-settings"><i class="fas fa-lock mr-3"></i> Privacy</a>
+                                </p>
+                                <p>
+                                    <a href="{% url 'accounts:logout' %}" title="continue to logout" class="bs-account-settings"><i class="fas fa-power-off mr-3"></i> Sign out</a>
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End profile modal -->
+</body>
+{% endblock content %}
+
+{% block extra_script %}
+<script src="{% static 'public_scripts/user_profile_container.js' %}"></script>
+{% endblock extra_script %}

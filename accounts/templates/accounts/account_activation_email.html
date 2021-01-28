@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    {% autoescape off %}
+    
+    <div class="container">
+        <div class="alert alert-info text-center">
+            Hi {{ user.username }}
+            Please click on the link below to confirm your registration:
+        </div>
+        
+        {{ protocol }}://{{ domain }}{% url 'accounts:activate' uidb64=uid token=token %}
+    </div>
+
+    {% endautoescape %}
+
+{% endblock content %}

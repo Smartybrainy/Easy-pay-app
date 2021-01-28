@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static crispy_forms_tags %}
+{% block content %}
+
+<head>
+    <title>{% block title %}| Account settings {% endblock title %}</title>
+</head>
+
+<body class="bs-success">
+    
+    <div class="container mt-4">
+        <div class="row text-light" id="bs-font">
+            <div class="col-12">
+                {% if user.profile.image %}
+                <div class="media justify-content-center">
+                    <img src="{{ user.profile.image.url }}" alt="Profile-img" class="img-fluid" id="image-size" />
+                    {% endif %}
+                    <br />
+                </div>
+        
+                <div class="media text-center">
+                    <div class="media-body" style="overflow: auto;">
+                        <h5 class="account-heading">{{ user.username }}</h5>
+                        {% if user.profile.gender %}
+                        <small>Gender: {{ user.profile.gender }}</small>
+                        {% endif %}
+                        <h5 style="word-wrap: break-word;">{{ user.email }}</h5>
+                    </div>
+                </div>
+        
+            </div>
+        </div>
+        <hr />
+        <a href="{% url 'accounts:profile-view' %}" class="bs-account-settings-update ml-3">
+            <i class="fas fa-backward mr-3"></i> Profile
+        </a>
+        <a href="{% url 'accounts:logout' %}" title="continue to logout" class="bs-account-settings float-right"><i
+                class="fas fa-power-off mr-3"></i> Sign out
+        </a>
+
+    </div>
+    <hr />
+
+    <!-- the update form goes here -->
+    <div class="row justify-content-center pb-1">
+        <span id="profile-info-toggle" title="view profile settings">Profile Infomation</span>&nbsp;<i class="fas fa-caret-down text-light"></i>
+    </div>
+    <div class="container mb-5" id="profile-info-container" style="display: none;">
+        <div class="card w-75 pb-3 pl-4 pr-4 ml-auto mr-auto">
+            <div class="row justify-content-center">
+                <div class="col-md-5 col-sm-8">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            <legend class="border-bottom mb-4 text-center   text-muted">Profile Info
+                                <span class="close mt-3">&times;</span>
+                            </legend>
+                            {{ u_form | crispy }}
+                            {{ p_form | crispy }}
+                        </fieldset>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-outline-success btn-sm">
+                                Update
+                            </button>
+                            <input type="reset" value="Reset" class="btn btn-outline-warning btn-sm float-right" />
+
+                            <a href="/accounts/password-change/" class="btn btn-outline-primary btn-sm btn-block mt-3">Change My Password</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+{% endblock content %}
+
+{% block extra_script %}
+<script>
+    (function($){
+        var toggleBtn = $('#profile-info-toggle')
+        toggleBtn.click(function(){
+            $('#profile-info-container').slideDown(1000);
+            $('.fa-caret-down').hide(1000);
+            toggleBtn.hide(1000);
+        })
+        $('.close').click(function(){
+            $('#profile-info-container').slideUp(1000);
+            $('.fa-caret-down').show(1000);
+            toggleBtn.show(1000);
+        })
+    })(jQuery);
+</script>
+{% endblock extra_script %}

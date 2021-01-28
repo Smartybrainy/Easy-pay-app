@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<head>
+    <title>{% block title %}| Authentication{% endblock title %}</title>
+</head>
+<body class="bs-success home-length">
+    <div class="container">
+        <section class="text-light text-center pay-text mt-5">
+            <h1>Welcome To Easy Pay</h1>
+        </section>
+
+        <section>
+            {% if not user.is_authenticated %}
+                <div class="auth">
+                    <a href="{% url 'accounts:login' %}"class="auth-content">Login</a>
+                </div>
+                <div class="auth">
+                    <a href="{% url 'accounts:signup' %}" class="auth-content">Signup</a>
+                </div>
+            {% else %}
+                <div class="auth">
+                    <a href="{% url 'accounts:logout' %}" class="auth-content">Logout</a>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+</body>
+
+{% endblock content %}

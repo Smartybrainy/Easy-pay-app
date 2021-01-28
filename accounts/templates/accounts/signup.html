@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<head>
+    {% if user.is_authenticated %}
+    <meta http-equiv="refresh" content="2; url={% url 'accounts:profile-view' %}">
+    {% endif %}
+    <title>{% block title %}| Sign-up{% endblock title %}</title>
+    <style>
+        .card {
+            margin-top: 10%;
+        }
+    </style>
+</head>
+
+<body class="bs-success">
+    {% if not user.is_authenticated %}
+    <div class="container">
+        <div class="card w-50 pb-3 pl-4 pr-4 ml-auto mr-auto">
+            <div class="row justify-content-center">
+                <div class="col-md-5 col-sm-8">
+                    <br />
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <button type="submit" class="btn btn-outline-primary btn-sm">Signup</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <marquee behavior="" direction="rtl" class="mt-5">Login and explore.</marquee>
+    </div>
+    {% else %}
+    <div class="alert alert-info p-5 mt-5 text-capitalize text-center">
+        {{ request.user.username }} you are signed in.
+        <span class="spinner spinner-grow spinner-grow-sm text-secondary"></span>
+        <span class="spinner spinner-grow spinner-grow-sm text-info"></span>
+        <span class="spinner spinner-grow spinner-grow-sm text-warning"></span>
+    </div>
+    {% endif %}
+</body>
+
+{% endblock content %}
