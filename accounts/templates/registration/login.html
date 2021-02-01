@@ -24,6 +24,7 @@
                         {% csrf_token %}
                         {{ form|crispy }}
                         <button type="submit" class="btn btn-outline-primary btn-sm">Login</button>
+                        <p>Don't have existing account <a href="{% url 'accounts:signup' %}">signup</a> here.</p>
                     </form>
                 </div>
             </div>

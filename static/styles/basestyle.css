@@ -26,3 +26,8 @@
   background-color: lightseagreen;
   z-index: 10 !important;
 }
+
+#base-container {
+  min-width: 100% !important;
+  overflow-x: hidden;
+}

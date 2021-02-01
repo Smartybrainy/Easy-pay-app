@@ -109,7 +109,7 @@ def signup(request):
         domain = get_current_site(request).domain
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         token = account_activation_token.make_token(user)
-        link = reverse('activate', kwargs={'uidb64': uidb64, 'token': token})
+        link = reverse('accounts:activate', kwargs={'uidb64': uidb64, 'token': token})
         activate_url = domain+link
 
         email_subject = 'Activate Your Easypay Account.'

@@ -6,11 +6,13 @@
 :root {
   --primary-white: #fff;
   --primary-gray: #ccc;
-  --primary-green: hsl(157, 94%, 50%);
-  --primary-green2: hsl(157, 94%, 55%);
+  --primary-green: hsl(145, 66%, 37%);
+  --primary-green2: hsl(145, 66%, 45%);
 }
 .bs-success {
   background-color: var(--primary-green);
+  background-image: linear-gradient(315deg, #21d190 0%, #3b5e48d5 74%);
+  width: 100% !important;
 }
 
 /* The home page styling */
@@ -21,7 +23,7 @@
 .naira-sign {
   font-size: 10rem;
   font-weight: 400;
-  font-family: "Times New Roman", Times, serif;
+  font-family: sans-serif;
   color: var(--primary-white);
   min-height: 75vh;
   max-width: 15%;
@@ -31,15 +33,13 @@
   align-items: center;
 }
 .naira-sign:hover {
-  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
-    "Lucida Sans", Arial, sans-serif;
+  font-family: sans-serif;
   color: var(--primary-gray);
   text-shadow: 5px 5px green;
 }
 
 .naira-sign:active {
-  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
-    "Lucida Sans", Arial, sans-serif;
+  font-family: sans-serif;
   color: var(--primary-gray);
   text-shadow: 3px 3px green;
 }
@@ -50,6 +50,6 @@
 
 .pay-text {
   font-size: 3rem;
-  font-family: "Times New Roman", Times, serif;
+  font-family: sans-serif;
 }
 /* End home page styling */

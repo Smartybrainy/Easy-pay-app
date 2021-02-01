@@ -5,16 +5,16 @@
     <title>{% block title %}| Profile {% endblock title %}</title>
 </head>
 <body class="bs-success">
-    <div class="container-fluid">
+    <div class="container">
         <div class="row">
-            <div class="col-sm-2 mt-3">
+            <div class="col-2 mt-3">
                 <button class="btn btn-sm btn-light rounded rounded-circle ml-3" id="bs-toggle-btn" title="go to account"><i
-                        class="fas fa-user"></i></button>
+                        class="fas fa-user fa-lg"></i></button>
             </div>
         
             <!-- logout button -->
-            <div class="col-sm-2 mt-3">
-                <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-light rounded rounded-circle ml-3" title="logout" id="bs-logout"><i class="fas fa-power-off"></i></a>
+            <div class="col-2 mt-3">
+                <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-light rounded rounded-circle ml-3" title="logout" id="bs-logout"><i class="fas fa-power-off fa-lg"></i></a>
             </div>
         </div>
     </div>

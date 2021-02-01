@@ -47,8 +47,11 @@ class UserUpdateForm(forms.ModelForm):
 
 class ProfileUpdateForm(forms.ModelForm):
     image = forms.ImageField(required=False)
-    gender = forms.CharField(required=False)
+    gender = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'placeholder': "Male/Female"
+    }))
 
     class Meta:
         model = Profile
         fields = ['gender', 'image']
+        

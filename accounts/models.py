@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from PIL import Image
+from phonenumber_field.modelfields import PhoneNumberField #requires phonenumbers module
 
 from .utils import generate_ref_code, generate_otp_number
 
@@ -16,7 +17,7 @@ STATUS = (
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     email_confirmed = models.BooleanField(default=False)
-    mobile = models.CharField(max_length=16)
+    mobile = PhoneNumberField()
     otp = models.CharField(max_length=6)
     bio = models.TextField(blank=True)
     code = models.CharField(max_length=8, blank=True)
@@ -28,7 +29,7 @@ class Profile(models.Model):
                               width_field="width_field", height_field="height_field")
     width_field = models.IntegerField(default=0)
     height_field = models.IntegerField(default=0)
-    gender = models.CharField(choices=STATUS, max_length=6, default="Male")
+    gender = models.CharField(choices=STATUS, max_length=6, blank=True)
     
     def __str__(self):
         return f"{self.user.username}-{self.code}"
