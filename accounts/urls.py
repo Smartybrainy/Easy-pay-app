@@ -8,7 +8,14 @@ from django.contrib.auth.signals import (
     )
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .views import *
+from .views import (
+    signup,
+    ProfileView,
+    CustomPasswordChangeView,
+    account_settings,
+    activate,
+    AuthView
+)
 
 app_name = "accounts"
 
@@ -45,7 +52,5 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name="logout"),
     path('password-change/', CustomPasswordChangeView.as_view(), name="password-change"),
     path('account-settings/', account_settings, name="account-settings"),
-    path('account-activation-sent/', account_activation_sent, name="account-activation-sent"),
     path('activate/<uidb64>/<token>/', activate, name="activate"),
-    re_path(r'^validate_phone/$', ValidatePhoneSendOTP.as_view())
 ]
