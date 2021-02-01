@@ -17,16 +17,18 @@
                 <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-light rounded rounded-circle ml-3" title="logout" id="bs-logout"><i class="fas fa-power-off fa-lg"></i></a>
             </div>
         </div>
-    </div>
+    
 
-    <!-- main section -->
-    <main class="container mt-5 ml-5">
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <a href="{% url 'epay:make-payment' %}" class="btn btn-warning">Proceed to pay</a>
+        <!-- main section -->
+            <div class="row justify-content-center">
+                <div class="col">
+                    <br>
+                    <br>
+                    <br>
+                    <a href="{% url 'epay:make-payment' %}" class="btn btn-warning">Proceed to pay</a>
+                </div>
             </div>
-        </div>
-    </main>
+    </div>
 
     <!-- For the profile modal -->
     <div id="bs-modal">

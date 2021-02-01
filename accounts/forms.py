@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.views import PasswordChangeForm
 from .models import User
 from .models import Profile
 
@@ -55,3 +56,14 @@ class ProfileUpdateForm(forms.ModelForm):
         model = Profile
         fields = ['gender', 'image']
         
+        
+class CustomPasswordChangeForm(PasswordChangeForm):
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for fieldname in self.fields:
+            self.fields[fieldname].help_text = None
+          
+    class Meta:
+        model = User
+        fields = '__all__'

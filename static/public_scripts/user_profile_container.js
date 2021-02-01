@@ -1,10 +1,10 @@
 (function($){
     $("#bs-toggle-btn").click(function(){
-        $('#bs-modal').show(1000);
+        $('#bs-modal').show("fast");
     })
 
     $('.close').click(function(){
-        $('#bs-modal').slideUp(1000);
+        $('#bs-modal').slideUp("fast");
     })
 
 })(jQuery);

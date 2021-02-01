@@ -7,7 +7,7 @@ from django.views.generic import ListView, TemplateView, View
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.urls import reverse_lazy
-from django.contrib.auth.views import PasswordChangeView, PasswordChangeForm
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,7 +15,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
-from .forms import SignUpForm, UserUpdateForm, ProfileUpdateForm
+from .forms import SignUpForm, UserUpdateForm, ProfileUpdateForm, CustomPasswordChangeForm
 from .tokens import account_activation_token
 from .models import Profile
 
@@ -144,7 +144,7 @@ def signup(request):
     
 
 class CustomPasswordChangeView(PasswordChangeView):
-    form_class = PasswordChangeForm
+    form_class = CustomPasswordChangeForm
     template_name = "registration/password_change.html"
     success_url = reverse_lazy('accounts:login')
     

@@ -28,6 +28,5 @@
 }
 
 #base-container {
-  min-width: 100% !important;
-  overflow-x: hidden;
+  max-width: 100% !important;
 }
