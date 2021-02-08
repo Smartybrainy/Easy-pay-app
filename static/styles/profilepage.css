@@ -112,7 +112,7 @@
   border-radius: 14px;
   width: max-content;
   font-family: "Lato", Arial, Helvetica, sans-serif;
-  background-color: var(--primary-white);
+  background-color: #333;
   color: var(--primary-white);
   font-size: 20px;
   font-weight: 600;
@@ -120,7 +120,7 @@
   cursor: pointer;
 }
 #deposit-btn:hover > a:not(a.balance) {
-  background: #333;
+  background: var(--primary-white);
   text-shadow: -1px 0 green, 0 1px green, 1px 0 green, 0 -1px green;
   text-decoration: none;
   color: var(--primary-white);
@@ -134,15 +134,15 @@
   border-radius: 14px;
   width: max-content;
   font-family: "Lato", Arial, Helvetica, sans-serif;
-  background-color: #333;
-  color: var(--primary-white);
+  background-color: var(--primary-white);
+  color: #333;
   font-size: 20px;
   font-weight: 600;
   text-shadow: -1px 0 green, 0 1px green, 1px 0 green, 0 -1px green;
   cursor: pointer;
 }
 #deposit-btn:hover > a.balance {
-  background: var(--primary-white);
+  background: #333;
   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
   text-decoration: none;
   color: var(--primary-white);

@@ -37,14 +37,13 @@
                 <div class="col-md-5 col-sm-8 pt-4">
                     <form method="post">
                         {% csrf_token %}
-                        <input type="number" name="phone_number" id="id_phone_number" placeholder="mobile number" required autofocus class="form-effect">
+                        <!-- <input type="number" name="phone_number" id="id_phone_number" placeholder="mobile number" required autofocus class="numberinput form-effect">
 
-                        <input type="password" name="password" id="id_phone_number" placeholder="password" required autofocus class="form-effect">
-                        <!-- {{ form|crispy }} -->
-                        <br />
-                        <br />
+                        <input type="password" name="password" id="id_phone_number" placeholder="password" required autofocus class="textinput textInput form-effect"> -->
+                        {{ form|crispy }}
                         <a href="/" class="btn btn-outline-primary btn-sm">Home</a>
                         <button type="submit" class="btn btn-outline-primary btn-sm" name="register">Login</button>
+                        <br>
                         <p>Don't have existing account <a href="{% url 'accounts:signup' %}"><i>signup</i></a> here.</p>
                     </form>
                 </div>
