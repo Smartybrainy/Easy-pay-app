@@ -79,7 +79,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = ['country_code','unique_tag']
+    REQUIRED_FIELDS = ['email','country_code','unique_tag']
 
     class Meta:
         ordering = ('email',)
