@@ -7,25 +7,67 @@
     <meta http-equiv="refresh" content="2; url={% url 'accounts:profile-view' %}">
     {% endif %}
     <title>{% block title %}| Sign-up{% endblock title %}</title>
-    <style>
-        .card {
-            margin-top: 10%;
-        }
-    </style>
 </head>
+<style>
+    /* for input styles */
+    /*
+    :focus {
+        outline: none;
+    }
 
-<body class="bs-success">
+    .bs-form-container {
+        position: relative;
+    }
+
+    .form-effect {
+        border: 0;
+        border-bottom: 2px solid #ccc;
+        text-align: center;
+        width: 100%;
+        padding: 7px 0;
+        letter-spacing: 2px;
+        word-spacing: 2px;
+    }
+
+    .form-effect:focus {
+        border-bottom: 2px solid aquamarine;
+    }
+    */
+</style>
+
+<body class="">
     {% if not user.is_authenticated %}
-    <div class="container">
+    <div class="container mt-5 text-center">
+        <h5 class="text-secondary">Welcome to Easp-Pay complete your registeration.</h5>
         <div class="card p-4" style="max-width: 100%;">
             <div class="row justify-content-center">
-                <div class="col-md-5 col-sm-8">
-                    <br />
-                    <form method="post">
+                <div class="col-md-5 col-sm-8 pt-4">
+                    <form method="POST">
                         {% csrf_token %}
+                        <!-- <div>
+                            <input type="number" name="phone_number" id="id_phone_number" placeholder="mobile number" required autofocus
+                                class="form-effect">
+                            
+                            <select name="country_code" class="form-effect" id="id_country_code">
+                                <option value="234" selected>Nigeria (+234)</option>
+                                <option value="233">Ghana (+233)</option>
+                            </select>
+                            
+                            <input type="text" name="unique_tag" id="id_unique_tag" placeholder="unique_tag, e.g #name" required maxlength="15"
+                                class="form-effect">
+                            
+                            <input type="password" name="password1" id="id_password1" placeholder="password" required maxlength="14"
+                                class="form-effect">
+                            
+                            <input type="password" name="password2" id="id_password2" placeholder="confirm password" required maxlength="14"
+                                class="form-effect">
+                        </div> -->
                         {{ form|crispy }}
-                        <button type="submit" class="btn btn-outline-primary btn-sm">Signup</button>
-                        <p>Already signup <a href="{% url 'accounts:login' %}">login</a> here.</p>
+                        <br />
+                        <br />
+                        <a href="/" class="btn btn-outline-primary btn-sm">Home</a>
+                        <button type="submit" class="btn btn-outline-primary btn-sm" name="register">Submit</button>
+                        <p>Already signup <a href="{% url 'accounts:login' %}"><i>login</i></a> here.</p>
                     </form>
                 </div>
             </div>

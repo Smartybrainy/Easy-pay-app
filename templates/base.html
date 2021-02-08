@@ -8,7 +8,6 @@
 
     <link rel="stylesheet" href="{% static 'styles/homepage.css' %}">
     <link rel="stylesheet" href="{% static 'styles/profilepage.css' %}">
-    <link rel="stylesheet" href="{% static 'styles/authview.css' %}">
     <link rel="stylesheet" href="{% static 'styles/basestyle.css' %}">
     <link rel="icon" href="{% static 'fav/naira-sign2.ico' %}">
     <meta name="Author" content="Smartybrainy">
@@ -16,8 +15,20 @@
     <link rel="stylesheet" href="{% static 'offline/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'offline/font-awesome/all.min.css' %}">
     <title>E-pay {% block title %}{% endblock %}</title>
+    <style>
+        .alert{
+            width: calc(760px / 2);
+            max-width: 520px;
+            word-break: keep-all;
+            -ms-word-break: keep-all;
+            z-index: 120;
+            /* displays above all */
+            margin: auto;
+            margin-top: 3rem;
+        }
+    </style>
 </head>
-<body id="base-container">
+<body>
 
     <div id="bs-progress-container">
         <div id="bs-progress-bar"></div>
@@ -27,10 +38,10 @@
         {% if messages %}
         <div class="bs-alert-height">
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible text-capitalize" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                {{ message }}
-            </div>
+                <div class="alert alert-{{ message.tags }} alert-dismissible text-capitalize" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message|escape }}
+                </div>
             {% endfor %}
         </div>
         {% endif %}

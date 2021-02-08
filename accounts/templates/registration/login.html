@@ -7,24 +7,45 @@
     {% endif %}
     <title>{% block title %}| Login{% endblock title %}</title>
     <style>
-        .card{
-            margin-top: 10%;
+        /* for input styles */
+        :focus{outline: none;}
+
+        .bs-form-container{
+            position: relative;
         }
+        .form-effect{
+            border: 0;
+            border-bottom: 2px solid #ccc;
+            text-align: center;
+            width: 100%;
+            padding: 7px 0;
+            letter-spacing: 2px;
+            word-spacing: 2px;
+        }
+       .form-effect:focus{
+           border-bottom: 2px solid aquamarine;
+       }
     </style>
 </head>
 
-<body class="bs-success">
+<body class="">
     {% if not user.is_authenticated %}
-    <div class="container">
-        <div class="card p-4" style="max-width: 100%;">
+    <div class="container mt-5 text-center">
+        <h5 class="text-secondary">Welcome to Easp-Pay enter your number and password to continue.</h5>
+        <div class="card p-4 mt-3" style="max-width: 100%;">
             <div class="row justify-content-center">
-                <div class="col-md-5 col-sm-8">
-                    <br />
+                <div class="col-md-5 col-sm-8 pt-4">
                     <form method="post">
                         {% csrf_token %}
-                        {{ form|crispy }}
-                        <button type="submit" class="btn btn-outline-primary btn-sm">Login</button>
-                        <p>Don't have existing account <a href="{% url 'accounts:signup' %}">signup</a> here.</p>
+                        <input type="number" name="phone_number" id="id_phone_number" placeholder="mobile number" required autofocus class="form-effect">
+
+                        <input type="password" name="password" id="id_phone_number" placeholder="password" required autofocus class="form-effect">
+                        <!-- {{ form|crispy }} -->
+                        <br />
+                        <br />
+                        <a href="/" class="btn btn-outline-primary btn-sm">Home</a>
+                        <button type="submit" class="btn btn-outline-primary btn-sm" name="register">Login</button>
+                        <p>Don't have existing account <a href="{% url 'accounts:signup' %}"><i>signup</i></a> here.</p>
                     </form>
                 </div>
             </div>

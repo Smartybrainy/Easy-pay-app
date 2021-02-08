@@ -7,10 +7,11 @@
 </head>
 
 <body class="bs-success">
-    
+        
+    <!-- media section -->
     <div class="container mt-4">
         <div class="row text-light" id="bs-font">
-            <div class="col-12">
+            <div class="col">
                 {% if user.profile.image %}
                 <div class="media justify-content-center">
                     <img src="{{ user.profile.image.url }}" alt="Profile-img" class="img-fluid" id="image-size" />
@@ -18,36 +19,104 @@
                     <br />
                 </div>
         
-                <div class="media text-center">
-                    <div class="media-body" style="overflow: auto;">
-                        <h5 class="account-heading">{{ user.username }}</h5>
-                        {% if user.profile.gender %}
-                        <small>Gender: {{ user.profile.gender }}</small>
+                <div class="text-center">
+                    <div style="overflow: auto;">
+                        <h5 class="text-capitalize bs-borderd-text">{{ user.unique_tag }}</h5>
+                        {% if user.email %}
+                        <p>{{ user.email }}</p>
+                        {% else %}
+                        <!-- If not email -->
+                        <div style="width: 180px;border-bottom:1px dotted rgba(0,0,0,0.1); width:180px; margin:auto;"></div>
                         {% endif %}
-                        <h5 style="word-wrap: break-word;">{{ user.email }}</h5>
                     </div>
                 </div>
             </div>
-
         </div>
-        <hr />
-        
-        <a href="{% url 'accounts:profile-view' %}" class="bs-account-settings-update ml-3">
-            <i class="fas fa-backward mr-3"></i> Profile
-        </a>
-        <a href="{% url 'accounts:logout' %}" title="continue to logout" class="bs-account-settings float-right"><i
-                class="fas fa-power-off mr-3"></i> Sign out
-        </a>
-
     </div>
+
+    <!-- navigations button -->
+   <div class="container mt-3 text-center">
+        <div class="row rounded shadow shadow-lg">
+            <div class="col-md-3 p-3">
+                <a href="{% url 'accounts:profile-view' %}" class="bs-account-settings-backarror">
+                    <i class="fas fa-backward mr-2"></i>Profile
+                </a>
+            </div>
+
+            <!-- Button trigger modal -->
+            <div class="col-md-6 p-3 bg-light">
+                    {% if not user.two_factor_auth %}
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" title="activate 2factor security">
+                        Enabled 2factor security
+                        {% else %}
+                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#exampleModal"
+                            title="activate 2factor security">
+                            Disabled 2factor security
+                        {% endif%}
+                    </button>
+
+                    {% if user.two_factor_auth %}
+                    <button type="button" class="badge badge-success" name="two_factor_auth" style="cursor: crosshair;" title="click on the activate button">
+                        ENABLED
+                        {%else%}
+                    <button type="button" class="badge badge-danger" name="two_factor_auth" style="cursor: crosshair;" title="click on the activate button">
+                        DISABLED
+                        {% endif %}
+                    </button>
+            </div>
+
+            <div class="col-md-3 p-3">
+                <a href="{% url 'accounts:logout' %}" title="continue to logout" class="bs-account-settings-signout"><i
+                        class="fas fa-power-off mr-2"></i>Sign out
+                </a>
+            </div>
+        </div>
+   </div>
     <hr />
+
+
+<!-- For Modal the 2factor form modal... -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Two Factor Authentication</h5>
+                <button type="button" class="close mt-2" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Important:</strong> if <q><mark>enabled</mark></q> if sets a new security level that allow you to verify your mobile number before logging into your account.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    Two Factor Authentication:
+                    {% if user.two_factor_auth %}
+                    <button type="submit" class="btn btn-success" name="two_factor_auth">
+                        ENABLED
+                        {%else%}
+                        <button type="submit" class="btn btn-danger" name="two_factor_auth">
+                            DISABLED
+                            {% endif %}
+                        </button>
+                        <i>Click to toggle.</i>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Endn of the 2factor form modal... -->
+
 
     <!-- the update form goes here -->
     <div class="pb-1" style="width:max-content; margin:auto">
         <span id="profile-info-toggle" title="view profile settings">Profile Infomation</span>&nbsp;<i class="fas fa-caret-down text-light"></i>
     </div>
 
-    <div class="container mb-5" id="profile-info-container" style="display: none;">
+    <div class="mb-5" id="profile-info-container" style="display: none;">
         <div class="card w-75 pb-3 pl-4 pr-4 ml-auto mr-auto">
             <div class="row justify-content-center">
                 <div class="col-md-5 col-sm-8">
@@ -72,12 +141,14 @@
             </div>
         </div>
     </div>
+    <!-- End of update modal form -->
     
 </body>
 {% endblock content %}
 
 {% block extra_script %}
 <script>
+    // For the hidden update form
     (function($){
         var toggleBtn = $('#profile-info-toggle')
         toggleBtn.click(function(){
@@ -91,5 +162,12 @@
             toggleBtn.show("fast");
         })
     })(jQuery);
+    // End of hidden update form...
+
+    // Starting 2factor form modal
+    //$('#myModal').on('shown.bs.modal', function () {
+    //        $('#myInput').trigger('focus')
+    //})
+    // Ending 2factor form modal
 </script>
 {% endblock extra_script %}

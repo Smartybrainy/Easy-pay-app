@@ -1,12 +1,17 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, AbstractUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import RegexValidator
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 from PIL import Image
 from phonenumber_field.modelfields import PhoneNumberField #requires phonenumbers module
+# pip install django-phonenumber-field[phonenumbers]
+from django.utils import timezone
 
-from .utils import generate_ref_code, generate_otp_number
+from .utils import generate_ref_code
+from .manager import CustomUserManager
+from django.contrib.auth import get_user_model
+User = settings.AUTH_USER_MODEL
 
 
 STATUS = (
@@ -17,10 +22,8 @@ STATUS = (
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     email_confirmed = models.BooleanField(default=False)
-    mobile = PhoneNumberField()
-    otp = models.CharField(max_length=6)
     bio = models.TextField(blank=True)
-    code = models.CharField(max_length=8, blank=True)
+    web_code = models.CharField(max_length=8, blank=True)
     recommended_by = models.ForeignKey(
         User, on_delete=models.CASCADE, blank=True, null=True, related_name='ref_by')
     updated = models.DateTimeField(auto_now=True)
@@ -32,10 +35,10 @@ class Profile(models.Model):
     gender = models.CharField(choices=STATUS, max_length=6, blank=True)
     
     def __str__(self):
-        return f"{self.user.username}-{self.code}"
+        return f"{self.user.unique_tag}-{self.web_code}"
     
     class Meta:
-        verbose_name_plural = "User Profile"
+        verbose_name_plural = "User Profiles"
         
     def get_recommend_profiles(self):
         qs = Profile.objects.all()
@@ -43,14 +46,10 @@ class Profile(models.Model):
         return my_recs
         
     def save(self, *args, **kwargs):
-        if self.code == "":
-            code = generate_ref_code()
-            self.code = code
-
-        if self.otp == "":
-            otp = generate_otp_number()
-            self.otp = otp
-        
+        if self.web_code == "":
+            new_code = generate_ref_code()
+            self.web_code = new_code
+            
         return super(Profile, self).save(*args, **kwargs)
         # for image
         img = Image.open(self.image.path)
@@ -62,3 +61,35 @@ class Profile(models.Model):
     def delete(self, *args, **kwargs):
         self.image.delete()
         return super().delete(*args, **kwargs)
+    
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    # username = None
+    email = models.EmailField(_('email'), unique=True, blank=True, null=True)
+    unique_tag = models.CharField(_('unique_tag'), max_length=20, unique=True, blank=True)
+    full_name = models.CharField(_('full name'), max_length=130, blank=True)
+    is_staff = models.BooleanField(_('is_staff'), default=False)
+    is_active = models.BooleanField(_('is_active'), default=False)
+    date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
+    phone_number_verified = models.BooleanField(default=False)
+    phone_number = models.BigIntegerField(unique=True)
+    country_code = models.IntegerField(default=234)
+    two_factor_auth = models.BooleanField(default=False)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'phone_number'
+    REQUIRED_FIELDS = ['country_code','unique_tag']
+
+    class Meta:
+        ordering = ('email',)
+        verbose_name = _('user',)
+        verbose_name_plural = _('users')
+
+    def get_short_name(self):
+        if self.full_name != "":
+            return self.full_name
+        return self.unique_tag
+
+    def __str__(self):
+        return self.unique_tag

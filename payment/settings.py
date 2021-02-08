@@ -33,7 +33,7 @@ DEFAULT_APP = [
 
 LOCAL_APP = [
     'epay.apps.EpayConfig',
-    'accounts',
+    'accounts.apps.AccountsConfig',
 ]
 
 THIRD_PARTY_APP = [
@@ -140,9 +140,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-# for abstract user model
-# AUTH_USER_MODEL = 'accounts.User'
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -152,12 +149,13 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_EMAIL_FROM = config('EMAIL_HOST_USER')
 
-# LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
 
-# For OTP
-_2FACTOR_APIKEY = "4145c29c-5e75-11eb-8153-0200cd936042"
-_2FACTOR_TEMPLATE_NAME = "OtpValidation"
+# for abstract user model
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+# For easy-pay OTP
+AUTHY_KEY = config('AUTHY_KEY')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

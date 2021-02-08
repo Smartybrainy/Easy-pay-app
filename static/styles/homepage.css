@@ -6,13 +6,16 @@
 :root {
   --primary-white: #fff;
   --primary-gray: #ccc;
-  --primary-green: hsl(145, 66%, 37%);
-  --primary-green2: hsl(145, 66%, 45%);
+  --primary-green: #00fa9a;
+  --main-transition: all 0.3 linear;
 }
 .bs-success {
   background-color: var(--primary-green);
-  background-image: linear-gradient(315deg, #21d190 0%, #3b5e48d5 74%);
-  width: 100% !important;
+  background-image: linear-gradient(
+    315deg,
+    #1dcc8ccc 10%,
+    hsla(157, 100%, 49%, 0.911) 84%
+  );
 }
 
 /* The home page styling */

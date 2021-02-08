@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, reverse
 
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+CustomUser = get_user_model()
 from django.views.generic import ListView, TemplateView, View
+
 # for the signup view
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -15,34 +17,28 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
-from .forms import SignUpForm, UserUpdateForm, ProfileUpdateForm, CustomPasswordChangeForm
+
+import json
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.http import HttpResponse
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.views import FormView
+from .authy import send_verification_code, verify_sent_code
+
+from .forms import (
+    CustomSignUpForm,
+    PhoneVerificationForm,
+    CustomLoginForm,
+    UserUpdateForm,
+    ProfileUpdateForm,
+    CustomPasswordChangeForm
+                    )
 from .tokens import account_activation_token
 from .models import Profile
 
-import http.client
 import random
 import threading
-
-
-def send_otp(mobile, otp):
-    conn = http.client.HTTPSConnection("2factor.in")
-    api_authkey = settings._2FACTOR_APIKEY
-    _2factor_template_name = settings._2FACTOR_TEMPLATE_NAME
-    headers = {'content-type': "application/json"}
-
-    url_2factor = "https://2factor.in/API/R1/?module=SMS_OTP&apikey=4145c29c-5e75-11eb-8153-0200cd936042&to=" + \
-        mobile+"&otpvalue="+otp+"templatename=OtpValidation"
-
-    # conn = http.client.HTTPSConnection("api.msg91.com")
-    # url_msg91 = "http://control.msg91.com/api/sendotp.php?otp" + \
-    #     otp+"&sender=ABC&message="+"Your OTP is " + \
-    #         otp+"&mobile= "+mobile+"&authkey="+authkey+"&country=234"
-
-    conn.request("GET", url_2factor, headers=headers)
-    res = conn.getresponse()
-    data = res.read()
-    print(data.decode("utf-8"))
-    return None
 
 
 class EmailThread(threading.Thread):
@@ -54,114 +50,314 @@ class EmailThread(threading.Thread):
     def run(self):
         self.send_email.send(fail_silently=False)
 
-class ProfileView(LoginRequiredMixin, ListView):
-    model = Profile
-    template_name = "accounts/profile_view.html"
-
-
-@login_required
-def account_settings(request):
+def account_settings_update(request):
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST or None, instance=request.user)
         p_form = ProfileUpdateForm(request.POST or None,
-                                   request.FILES or None,
-                                   instance=request.user.profile)
+                        request.FILES or None,
+                        instance=request.user.profile)
         if u_form.is_valid() and p_form.is_valid():
             u_form.save()
             p_form.save()
-            messages.success(request, f'{request.user.username} account was updated.')
+            messages.success(request, f'{request.user.unique_tag} account was updated.')
             return redirect('accounts:account-settings')
     else:
         u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm(instance=request.user.profile)
+        p_form = ProfileUpdateForm(instance=request.user.profile)  
+        context = {
+            'u_form': u_form,
+            'p_form': p_form
+        }
+        return render(request, "accounts/account_settings.html", context)
 
-    context = {
-        'u_form': u_form,
-        'p_form': p_form
-    }
-    return render(request, "accounts/account_settings.html", context)
-
-
-class AuthView(TemplateView):
-    template_name="accounts/auth_view.html"
-
-
-def signup(request):
-    profile_id = request.session.get('ref_profile')
-    form = SignUpForm(request.POST or None)
-    if form.is_valid():
-        user = form.save(commit=False)
-        user.is_active = False
-        user.save()
-        # adding the mobile while signup
-        user.refresh_from_db()
-        user.profile.mobile = form.cleaned_data.get('mobile')
-        user.save()
-
-        # For otp, send_otp func above
-        mobile = form.cleaned_data.get('mobile')
-        otp = str(random.randint(1000, 9999))
-        send_otp(mobile, otp)
-        request.session['mobile'] = mobile
-
-        # for email confirmation
-        raw_email = form.cleaned_data.get('email')
-        domain = get_current_site(request).domain
-        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-        token = account_activation_token.make_token(user)
-        link = reverse('accounts:activate', kwargs={'uidb64': uidb64, 'token': token})
-        activate_url = domain+link
-
-        email_subject = 'Activate Your Easypay Account.'
-        email_body = f'Hi {user.username} Please use this link to activate your account,\n If you are unable to click the link copy it to a new browser tab.\n\n{activate_url}'
-        send_email = EmailMessage(
-            email_subject,
-            email_body,
-            'noreply@easypay.com',
-            [raw_email],
-        )
-        EmailThread(send_email).start()
-
-        # for the referal
-        if profile_id is not None:
-            recommended_by_profile = Profile.objects.get(id=profile_id)
-            form = SignUpForm()
-            instance = form.save()
-            registered_user = User.objects.get(id=instance.id)
-            registered_profile = Profile.objects.get(user=registered_user)
-            registered_profile.recommended_by = recommended_by_profile.user
-            registered_profile.save()
-            messages.info(
-                request, "An email has been sent to your mailbox...")
-            return redirect('/')
-        else:
-            messages.info(
-                request, "An email has been sent to your mailbox...")
-            return redirect('/')
-
-    context = {'form': form}
-    return render(request, 'accounts/signup.html', context)
+class AccountSettings(LoginRequiredMixin, View):
+    def get(self, request):
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)  
+        context = {
+            'u_form': u_form,
+            'p_form': p_form
+        }
+        return render(request, "accounts/account_settings.html", context)
     
+    def post(self, request):
+        # Check for 2factor security
+        if 'two_factor_auth' in request.POST:
+            if request.user.two_factor_auth:
+                request.user.two_factor_auth = False
+                messages.warning(request, "You have disabled 2factor security")
+            else:
+                request.user.two_factor_auth = True
+                messages.info(request, "You have enabled 2factor security")
+            request.user.save()
+        else:
+            pass #then return redirect.
+        
+            # User update form
+            u_form = UserUpdateForm(request.POST or None, instance=request.user)
+            p_form = ProfileUpdateForm(request.POST or None,
+                            request.FILES or None,
+                            instance=request.user.profile)
+            if u_form.is_valid() and p_form.is_valid():
+                u_form.save()
+                p_form.save()
+                messages.success(request, f'{request.user.unique_tag} account was updated.')
+        return redirect('accounts:account-settings')
+
+    
+    
+    
+
+
+class CustomSignupView(SuccessMessageMixin, FormView):
+    template_name = 'accounts/signup.html'
+    form_class = CustomSignUpForm
+    success_message = "One-Time password sent to your registered mobile number.\
+                       The verification code is valid for 10 minutes."
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            messages.info(
+                self.request, f"{self.request.user} you are logged in")
+            return redirect('accounts:profile-view')
+        else:
+            return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # Get the profile session_key
+        profile_id = self.request.session.get('ref_profile')
+        
+        if form.is_valid():
+            user = form.save()
+
+        phone_number = self.request.POST.get('phone_number')
+        password = self.request.POST.get('password1')
+        authenticate(phone_number=phone_number, password=password)
+        try:
+            response = send_verification_code(user)
+            messages.add_message(
+                self.request, messages.INFO, self.success_message)
+        except Exception as e:
+            messages.add_message(self.request, messages.WARNING,
+                                 'verification code not sent. \n'
+                                 'Please re-register.')
+            return redirect('accounts:signup')
+        data = json.loads(response.text)
+
+        print(response.status_code, response.reason)
+        print(response.text)
+        print(data['success'])
+        
+        if data.get('success') == False:
+            messages.add_message(self.request, messages.WARNING,
+                                 data.get('message'))
+            return redirect('accounts:signup')
+        else:
+            # Implement web_ref_code before calling verification_view:
+            if profile_id is not None:
+                recommended_by_profile = Profile.objects.get(id=profile_id)
+                instance = form.save()
+                registered_user = CustomUser.objects.get(id=instance.id)
+                registered_profile = Profile.objects.get(user=registered_user)
+                registered_profile.recommended_by = recommended_by_profile.user
+                registered_profile.save()
+            else:
+                pass
+            
+            kwargs = {'user': user}
+            return phone_verification_view(self.request, **kwargs)
+
+
+def phone_verification_view(request, **kwargs):
+    template_name = 'accounts/phone_confirm.html'
+
+    if request.user.is_authenticated:
+        messages.info(
+            request, f"{request.user} you are logged in")
+        return redirect('accounts:signup')
+
+    if request.method == "POST":
+        phone_number = request.POST.get('phone_number')
+        user = CustomUser.objects.get(phone_number=phone_number)
+
+        form = PhoneVerificationForm(request.POST or None)
+        if form.is_valid():
+            verification_code = request.POST.get('one_time_password')
+            response = verify_sent_code(verification_code, user)
+
+            print(response.text)
+            data = json.loads(response.text)
+            if data.get('success') == True:
+                if user.is_active == False:
+                    user.is_active = True
+                    user.save()
+
+                login(request, user)
+
+                if user.phone_number_verified is False:
+                    user.phone_number_verified = True
+                    user.save()
+                return redirect('accounts:profile-view')
+            else:
+                messages.add_message(request, messages.WARNING,
+                                     data.get('message'))
+                return render(request, template_name, {'user': user})
+        else:
+            context = {
+                'user': user,
+                'form': form,
+            }
+            return render(request, template_name, context)
+
+    elif request.method == "GET":
+        try:
+            user = kwargs.get('user')
+            if user:
+                return render(request, template_name, {'user': user})
+            return HttpResponse("<h4>Not Allowed!</h4>")
+        except:
+            return HttpResponse("<h4>Not Allowed!</h4>")
+
+
+class CustomLoginView(SuccessMessageMixin, FormView):
+    template_name = 'registration/login.html'
+    form_class = CustomLoginForm
+    success_url = '/accounts/profile/'
+    success_message = "One-Time password sent to your registered mobile number.\
+                       The verification code is valid for 10 minutes."
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            messages.info(
+                self.request, f"{self.request.user} you are logged in")
+            return redirect('accounts:profile-view')
+        else:
+            return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        if form.is_valid():
+            user = form.login(self.request)
+        
+        if user.two_factor_auth is False:
+            login(self.request, user)
+            return redirect('accounts:profile-view')
+        else:
+            try:
+                response = send_verification_code(user)
+                messages.add_message(
+                    self.request, messages.INFO, self.success_message)
+            except Exception as e:
+                messages.info(
+                    self.request, "Verifacation code not sent. \n Please retry logging in")
+                return redirect('accounts:login')
+            data = json.loads(response.text)
+
+            if data.get('success') == False:
+                messages.info(
+                    self.request, data.get('message'))
+                return redirect('accounts:login')
+            print(response.status_code, response.reason)
+            print(response.text)
+
+            if data.get('success') == True:
+                kwargs = {'user': user}
+                return phone_verification_view(self.request, **kwargs)
+            else:
+                messages.add_message(self.request, messages.WARNING,
+                                     data.get('message'))
+                return redirect('accounts:login')
+            
+
+@method_decorator(login_required(login_url="{% url 'accounts:login' %}"), name='dispatch')
+class DashboardView(SuccessMessageMixin, View):
+    template_name = "accounts/profile_view.html"
+
+    def get(self, request):
+        profile = Profile.objects.get(user=request.user)
+        my_recs = profile.get_recommend_profiles()
+        current_site = get_current_site(self.request)
+        domain = current_site.domain
+        context = {
+            'user': self.request.user,
+            'host':domain,
+            'my_recs':my_recs
+        }
+        if not request.user.phone_number_verified:
+            messages.info(self.request, f"{self.request.user.phone_number} Not verified.")
+        return render(self.request, self.template_name, context)
+        # post method used in accounts/account-settings view
+
 
 class CustomPasswordChangeView(PasswordChangeView):
     form_class = CustomPasswordChangeForm
     template_name = "registration/password_change.html"
-    success_url = reverse_lazy('accounts:login')
+    success_url = reverse_lazy('accounts:account-settings')
+
+
+# def signup(request):
+#     profile_id = request.session.get('ref_profile')
+#     form = CustomSignUpForm(request.POST or None)
+#     if form.is_valid():
+#         user = form.save(commit=False)
+#         user.is_active = False
+#         user.save()
+#         # adding the mobile while signup
+#         user.refresh_from_db()
+#         user.profile.mobile = form.cleaned_data.get('mobile')
+#         user.save()
+
+#         # for email confirmation
+#         raw_email = form.cleaned_data.get('email')
+#         domain = get_current_site(request).domain
+#         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+#         token = account_activation_token.make_token(user)
+#         link = reverse('accounts:activate', kwargs={'uidb64': uidb64, 'token': token})
+#         activate_url = domain+link
+
+#         email_subject = 'Activate Your Easypay Account.'
+#         email_body = f'Hi {user.username} Please use this link to activate your account,\n If you are unable to click the link copy it to a new browser tab.\n\n{activate_url}'
+#         send_email = EmailMessage(
+#             email_subject,
+#             email_body,
+#             'noreply@easypay.com',
+#             [raw_email],
+#         )
+#         EmailThread(send_email).start()
+
+#         # for the referal
+#         if profile_id is not None:
+#             recommended_by_profile = Profile.objects.get(id=profile_id)
+#             form = CustomSignUpForm()
+#             instance = form.save()
+#             registered_user = CustomUser.objects.get(id=instance.id)
+#             registered_profile = Profile.objects.get(user=registered_user)
+#             registered_profile.recommended_by = recommended_by_profile.user
+#             registered_profile.save()
+#             messages.info(
+#                 request, "An email has been sent to your mailbox...")
+#             return redirect('/')
+#         else:
+#             messages.info(
+#                 request, "An email has been sent to your mailbox...")
+#             return redirect('/')
+
+#     context = {'form': form}
+#     return render(request, 'accounts/signup.html', context)
     
 
-def activate(request, uidb64, token):
-    try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
+# def activate(request, uidb64, token):
+#     try:
+#         uid = force_text(urlsafe_base64_decode(uidb64))
+#         user = CustomUser.objects.get(pk=uid)
+#     except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+#         user = None
     
-    if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.profile.email_confirmed = True
-        user.save()
-        login(request, user)
-        return redirect('accounts:profile-view')
-    return redirect('/')
+#     if user is not None and account_activation_token.check_token(user, token):
+#         user.is_active = True
+#         user.profile.email_confirmed = True
+#         user.save()
+#         login(request, user)
+#         return redirect('accounts:profile-view')
+#     return redirect('/')
 
     

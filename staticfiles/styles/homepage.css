@@ -1,0 +1,59 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+:root {
+  --primary-white: #fff;
+  --primary-gray: #ccc;
+  --primary-green: #00fa9a;
+  --main-transition: all 0.3 linear;
+}
+.bs-success {
+  background-color: var(--primary-green);
+  background-image: linear-gradient(
+    315deg,
+    #1dcc8ccc 10%,
+    hsla(157, 100%, 49%, 0.911) 84%
+  );
+  width: 100% !important;
+}
+
+/* The home page styling */
+.home-length {
+  min-height: 100vh;
+}
+
+.naira-sign {
+  font-size: 10rem;
+  font-weight: 400;
+  font-family: sans-serif;
+  color: var(--primary-white);
+  min-height: 75vh;
+  max-width: 15%;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.naira-sign:hover {
+  font-family: sans-serif;
+  color: var(--primary-gray);
+  text-shadow: 5px 5px green;
+}
+
+.naira-sign:active {
+  font-family: sans-serif;
+  color: var(--primary-gray);
+  text-shadow: 3px 3px green;
+}
+
+.naira-link:hover {
+  text-decoration: none;
+}
+
+.pay-text {
+  font-size: 3rem;
+  font-family: sans-serif;
+}
+/* End home page styling */

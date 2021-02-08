@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+
+<body class="bs-success">
+    <div class="container mt-5">
+        <div class="card p-4" style="max-width: 100%;">
+            <div class="row justify-content-center">
+                <div class="col-md-5 col-sm-8 pt-4">
+                    <form action="{% url 'accounts:verify' %}" method="POST">
+                        {% csrf_token %}
+                        <h6 class="mb-4 text-success">Confirm your phone number</h6>
+                        {% csrf_token %}
+                        <input type='hidden' name='phone_number' value='{{user.phone_number}}' />
+                    
+                        <div class="form-group{% if form.one_time_password.errors %} has-error{% endif %}">
+                            <label class="control-label text-success" for="id_one_time_password">One Time Password</label>
+
+                            <input class="form-control input-sm" id="id_one_time_password" name="one_time_password" type="password" required 
+                            />
+                            <div class="error-block">{{ form.one_time_password.errors }}</div>
+                        </div>
+                        <button type="submit" name="register" class="btn btn-primary btn-sm">Confirm</button>
+                        <a href="/" class="btn btn-warning btn-sm">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+{% endblock content %}

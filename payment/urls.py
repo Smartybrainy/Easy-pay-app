@@ -10,7 +10,6 @@ urlpatterns = [
     path('', include('epay.urls', namespace="epay")),
     path('accounts/', include('accounts.urls', namespace="accounts")),
     path('favicon/', RedirectView.as_view(url=staticfiles_storage.url('fav/naira-sign2.ico'))),
-    re_path(r"^api/", include('accounts.urls', namespace="account")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL,

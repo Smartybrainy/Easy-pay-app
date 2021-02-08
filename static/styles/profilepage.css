@@ -1,11 +1,19 @@
 :root {
+  --primary-gray: #ccc;
+  --primary-green: hsl(145, 66%, 37%);
   --main-transition: all 0.3 linear;
 }
 
 #bs-font {
-  font-family: sans-serif;
+  font-family: "Lato", Arial, Helvetica, sans-serif;
 }
 /* -------modal--------- */
+.media {
+  box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.4);
+  width: max-content;
+  margin: auto;
+  border-radius: 50%;
+}
 #bs-modal {
   display: none;
   position: fixed;
@@ -23,7 +31,7 @@
   padding: 1.5rem 1.25rem;
   border-bottom-right-radius: 10%;
   box-shadow: 3px 0 15px 0 rgba(15, 20, 100, 0.5);
-  background-image: linear-gradient(315deg, #21d190 0%, #d65bca 74%);
+  background-image: linear-gradient(315deg, #21d190 20%, rgb(92, 165, 214) 74%);
 }
 .close {
   position: absolute;
@@ -44,7 +52,7 @@
   cursor: pointer;
   border-radius: 5px;
   padding: 5px;
-  color: red !important;
+  color: red;
   background-color: #ccc;
 }
 #image-size {
@@ -55,6 +63,99 @@
   border: 2px outset rgb(73, 223, 168);
 }
 /* ------end modal----- */
+
+/* The main dashboard styling */
+#deposit-btn {
+  display: flex;
+  justify-content: center;
+}
+.bs-options-container {
+  min-height: calc(100vh - 87px);
+  display: flex;
+  flex-wrap: wrap;
+  align-self: flex-start;
+  justify-content: space-around;
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 0, 0, 0),
+    rgba(200, 230, 244, 1)
+  );
+}
+.bs-options-container > div.bs-option {
+  background-image: linear-gradient(
+    to top,
+    rgba(255, 0, 0, 0),
+    rgba(200, 230, 244, 1)
+  );
+  height: 130px;
+  color: #333;
+  font-weight: 600;
+  text-align: center;
+  padding: 55px 15px;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  width: 10rem;
+}
+.bs-option:hover {
+  background-color: #333;
+  color: var(--primary-white);
+  text-shadow: -1px 0 green, 0 1px green, 1px 0 green, 0 -1px green;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Start deposit styling. */
+#deposit-btn > a:not(a.balance) {
+  /* expect anchor with class balance */
+  border: 2px solid #ccc;
+  padding: 7px 10px;
+  border-radius: 14px;
+  width: max-content;
+  font-family: "Lato", Arial, Helvetica, sans-serif;
+  background-color: var(--primary-white);
+  color: var(--primary-white);
+  font-size: 20px;
+  font-weight: 600;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  cursor: pointer;
+}
+#deposit-btn:hover > a:not(a.balance) {
+  background: #333;
+  text-shadow: -1px 0 green, 0 1px green, 1px 0 green, 0 -1px green;
+  text-decoration: none;
+  color: var(--primary-white);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+#deposit-btn > a.balance {
+  /* only anchor with class balance */
+  border: 2px solid #ccc;
+  padding: 7px 10px;
+  border-radius: 14px;
+  width: max-content;
+  font-family: "Lato", Arial, Helvetica, sans-serif;
+  background-color: #333;
+  color: var(--primary-white);
+  font-size: 20px;
+  font-weight: 600;
+  text-shadow: -1px 0 green, 0 1px green, 1px 0 green, 0 -1px green;
+  cursor: pointer;
+}
+#deposit-btn:hover > a.balance {
+  background: var(--primary-white);
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  text-decoration: none;
+  color: var(--primary-white);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+/* End deposite styling............ */
+
+#deposit-btn:active > a {
+  background: #ccc;
+  text-decoration: none;
+  color: var(--primary-white);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+}
 
 #bs-logout {
   position: fixed;
@@ -70,42 +171,60 @@
   cursor: pointer;
   z-index: 2;
 }
+/* End of dashboard styling.... */
 
 /* --------profile settings page */
 .bs-account-settings,
-.bs-account-settings-update {
+.bs-account-settings-backarror,
+.bs-account-settings-signout {
   cursor: pointer;
   color: #fff;
+  width: 100%;
 }
-.bs-account-settings:hover,
-.bs-account-settings:active {
+.bs-account-settings-backarror:hover,
+.bs-account-settings-backarror:active {
   text-decoration: none;
-  background-color: #005564;
+  background-color: var(--primary-green);
   color: #ccc;
   margin-left: 0.25rem;
-  padding: 0.5rem 1rem;
-  border-radius: 3px 20px 20px 3px;
+  padding: 0.5rem;
+  border-radius: 10px;
   transition: var(--main-transition);
 }
 
-.bs-account-settings-update:hover,
-.bs-account-settings-update:active {
+.bs-account-settings:hover,
+.bs-account-settings:active {
   text-decoration: none;
-  background-color: #005564;
+  background-color: var(--primary-green);
   color: #ccc;
   margin-left: 0.25rem;
-  padding: 0.5rem 1rem;
-  border-radius: 20px 3px 3px 20px;
+  padding: 0.5rem;
+  border-radius: 10px;
   transition: var(--main-transition);
 }
+
+.bs-account-settings-signout:hover {
+  text-decoration: none;
+  background-color: var(--primary-green);
+  color: #ccc;
+  padding: 0.5rem;
+  border-radius: 10px;
+  transition: var(--main-transition);
+}
+
 #profile-info-toggle {
   cursor: pointer;
   font-family: sans-serif;
   font-weight: 700;
   border-bottom: 2px solid gray;
 }
+
 #profile-info-toggle:hover {
   color: #ccc;
   border-bottom: none;
+}
+.bs-borderd-text {
+  text-shadow: -1px 0 2px black, 0 1px 2px black, 1px 0 2px black,
+    0 -1px 2px black;
 }
 /* -------End profile view settings page */
