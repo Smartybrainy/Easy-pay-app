@@ -14,9 +14,9 @@ COUNTRY_CODE = (
 
 
 class CustomSignUpForm(UserCreationForm):
-    unique_tag = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={
-        'placeholder': 'unique_tag, e.g #name'
-    }))
+    # unique_tag = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={
+    #     'placeholder': 'unique_tag, e.g #name'
+    # }))
     password1 = forms.CharField(max_length=14, widget=forms.PasswordInput(attrs={
         'placeholder': "password"
     }))
@@ -34,13 +34,13 @@ class CustomSignUpForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        for fieldname in ['phone_number', 'country_code', 'unique_tag', 'password1', 'password2']:
+        for fieldname in ['phone_number', 'country_code', 'password1', 'password2']:
             self.fields[fieldname].help_text = None
             self.fields[fieldname].label = ''
 
     class Meta:
         model = CustomUser
-        fields = ('phone_number', 'country_code', 'unique_tag', 'password1', 'password2')
+        fields = ('phone_number', 'country_code', 'password1', 'password2')
 
     def clean_email(self):
         if self.email:
@@ -104,6 +104,15 @@ class CustomLoginForm(forms.Form):
                 "Sorry, your login was invalid. Please try again.")
 
 
+class UniqueTagForm(forms.ModelForm):
+    unique_tag = forms.CharField(max_length=20, widget=forms.TextInput(attrs={
+        'placeholder': "#example tag"
+    }))
+    class Meta:
+        model = CustomUser
+        fields = ('unique_tag',)
+        
+        
 class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField(required=False)
     unique_tag = forms.CharField(required=False)
@@ -111,7 +120,7 @@ class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         help_texts = {'unique_tag': None}
-        fields = ['phone_number', 'unique_tag', 'email']
+        fields = ['phone_number', 'unique_tag', 'full_name', 'email']
 
 
 class ProfileUpdateForm(forms.ModelForm):

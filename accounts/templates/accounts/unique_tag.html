@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<head>
+    <title>{% block title %}| E-tag{% endblock title %}</title>
+</head>
+
+<body class="">
+    {% if not user.unique_tag %}
+    <div class="container mt-5">
+        <h5 class="text-secondary text-center">Choose a &#x20A6;EasyPay tag your unique name for getting paid by anyone</h5>
+        <div class="card p-4 mt-3" style="max-width: 100%;">
+            <div class="row justify-content-center">
+                <div class="col-md-5 col-sm-8 pt-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="phone_number" value="{{ user.phone_number }}" id="id_phone_number">
+                        
+                        {{ form|crispy }}
+                        <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-sm">back</a>
+                        <button type="submit" class="btn btn-primary btn-sm float-right" name="register">Next</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info p-5 mt-5 text-capitalize text-center">
+        {{ request.user.unique_tag }} your unique_tag is set, you can edit in account user settings
+        <br />
+        <span class="spinner spinner-grow spinner-grow-sm text-secondary"></span>
+        <span class="spinner spinner-grow spinner-grow-sm text-info"></span>
+        <span class="spinner spinner-grow spinner-grow-sm text-warning"></span>
+        
+        <meta http-equiv="refresh" content="5; url={% url 'accounts:profile-view' %}">
+    </div>
+    {% endif %}
+</body>
+
+{% endblock content %}

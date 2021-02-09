@@ -14,10 +14,12 @@ from .views import (
     CustomLoginView,
     phone_verification_view,
     DashboardView,
+    set_unique_tag,
     CustomPasswordChangeView,
     AccountSettings,
     # activate,
     account_settings_update,
+    delete_notification
 )
 
 app_name = "accounts"
@@ -50,12 +52,12 @@ urlpatterns = [
     path('signup/', CustomSignupView.as_view(), name="signup"),
     path('login/', CustomLoginView.as_view(), name="login"),
     path('verify/', phone_verification_view, name="verify"),
+    path('unique-tag/', set_unique_tag, name="unique-tag"),
     path('profile/', DashboardView.as_view(), name="profile-view"),
-    
     path('account-settings/', AccountSettings.as_view(), name="account-settings"),
-    # path('account-settings/update/', account_settings_update, name="account-settings"),
-    
     path('logout/', auth_views.LogoutView.as_view(), name="logout"),
     path('password-change/', CustomPasswordChangeView.as_view(), name="password-change"),
     # path('activate/<uidb64>/<token>/', activate, name="activate"),
+    
+    path('delete-notice/<notification_id>/', delete_notification, name="delete-notice"),
 ]

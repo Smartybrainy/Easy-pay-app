@@ -21,12 +21,12 @@
         
                 <div class="text-center">
                     <div style="overflow: auto;">
-                        <h5 class="text-capitalize bs-borderd-text">{{ user.unique_tag }}</h5>
+                        <h5 class="text-capitalize bs-border-text">{{ user.unique_tag }}</h5>
                         {% if user.email %}
-                        <p>{{ user.email }}</p>
+                            <p>{{ user.email }}</p>
                         {% else %}
                         <!-- If not email -->
-                        <div style="width: 180px;border-bottom:1px dotted rgba(0,0,0,0.1); width:180px; margin:auto;"></div>
+                        <div style="width: 160px;border-bottom:1px dotted rgba(0,0,0,0.1); width:180px; margin:auto;"></div>
                         {% endif %}
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p><strong>Important:</strong> if <q><mark>enabled</mark></q> if sets a new security level that allow you to verify your mobile number before logging into your account.</p>
+                <p><strong>Important:</strong> if <q><mark>enabled</mark></q> it sets a new security level that allow you to verify your mobile number before logging into your account.</p>
                 <form method="POST">
                     {% csrf_token %}
                     Two Factor Authentication:
@@ -102,9 +102,9 @@
                         <i>Click to toggle.</i>
                 </form>
             </div>
-            <div class="modal-footer">
+            <!-- <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal">Close</button>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
@@ -130,10 +130,10 @@
                             {{ p_form | crispy }}
                         </fieldset>
                         <div class="form-group">
-                            <button type="submit" class="btn btn-outline-success btn-sm">
+                            <button type="submit" class="btn btn-success btn-sm">
                                 Update
                             </button>
-                            <input type="reset" value="Reset" class="btn btn-outline-warning btn-sm float-right" />
+                            <input type="reset" value="Reset" class="btn btn-danger btn-sm float-right" />
 
                             <a href="/accounts/password-change/" class="btn btn-outline-primary btn-sm btn-block mt-3">Change My Password</a>
                     </form>
@@ -163,11 +163,5 @@
         })
     })(jQuery);
     // End of hidden update form...
-
-    // Starting 2factor form modal
-    //$('#myModal').on('shown.bs.modal', function () {
-    //        $('#myInput').trigger('focus')
-    //})
-    // Ending 2factor form modal
 </script>
 {% endblock extra_script %}

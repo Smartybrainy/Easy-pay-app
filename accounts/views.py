@@ -17,6 +17,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
 
 import json
 from django.contrib.auth.decorators import login_required
@@ -30,12 +31,13 @@ from .forms import (
     CustomSignUpForm,
     PhoneVerificationForm,
     CustomLoginForm,
+    UniqueTagForm,
     UserUpdateForm,
     ProfileUpdateForm,
     CustomPasswordChangeForm
                     )
 from .tokens import account_activation_token
-from .models import Profile
+from .models import Profile, Notification
 
 import random
 import threading
@@ -141,12 +143,13 @@ class CustomSignupView(SuccessMessageMixin, FormView):
             messages.add_message(self.request, messages.WARNING,
                                  'verification code not sent. \n'
                                  'Please re-register.')
+            user.delete() #make sure user not saved
             return redirect('accounts:signup')
         data = json.loads(response.text)
 
-        print(response.status_code, response.reason)
-        print(response.text)
-        print(data['success'])
+        # print(response.status_code, response.reason)
+        # print(response.text)
+        # print(data['success'])
         
         if data.get('success') == False:
             messages.add_message(self.request, messages.WARNING,
@@ -174,7 +177,7 @@ def phone_verification_view(request, **kwargs):
     if request.user.is_authenticated:
         messages.info(
             request, f"{request.user} you are logged in")
-        return redirect('accounts:signup')
+        return redirect('accounts:profile-view')
 
     if request.method == "POST":
         phone_number = request.POST.get('phone_number')
@@ -182,22 +185,27 @@ def phone_verification_view(request, **kwargs):
 
         form = PhoneVerificationForm(request.POST or None)
         if form.is_valid():
-            verification_code = request.POST.get('one_time_password')
+            verification_code = form.cleaned_data.get('one_time_password')
             response = verify_sent_code(verification_code, user)
 
-            print(response.text)
+            # print(response.text)
             data = json.loads(response.text)
             if data.get('success') == True:
                 if user.is_active == False:
                     user.is_active = True
                     user.save()
-
+                    
                 login(request, user)
-
+                    
                 if user.phone_number_verified is False:
                     user.phone_number_verified = True
                     user.save()
-                return redirect('accounts:profile-view')
+                    
+                # check for unique_tag before accessing dashboard...
+                if user.unique_tag:
+                    return redirect('accounts:profile-view')
+                else:
+                    return redirect('accounts:unique-tag')
             else:
                 messages.add_message(request, messages.WARNING,
                                      data.get('message'))
@@ -229,7 +237,7 @@ class CustomLoginView(SuccessMessageMixin, FormView):
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
             messages.info(
-                self.request, f"{self.request.user} you are logged in")
+                self.request, f"{self.request.user.unique_tag} you are logged in")
             return redirect('accounts:profile-view')
         else:
             return super().dispatch(request, *args, **kwargs)
@@ -240,7 +248,11 @@ class CustomLoginView(SuccessMessageMixin, FormView):
         
         if user.two_factor_auth is False:
             login(self.request, user)
-            return redirect('accounts:profile-view')
+            # check for unique_tag before accessing dashboard...
+            if user.unique_tag:
+                return redirect('accounts:profile-view')
+            else:
+                return redirect('accounts:unique-tag')
         else:
             try:
                 response = send_verification_code(user)
@@ -256,8 +268,8 @@ class CustomLoginView(SuccessMessageMixin, FormView):
                 messages.info(
                     self.request, data.get('message'))
                 return redirect('accounts:login')
-            print(response.status_code, response.reason)
-            print(response.text)
+            # print(response.status_code, response.reason)
+            # print(response.text)
 
             if data.get('success') == True:
                 kwargs = {'user': user}
@@ -266,9 +278,27 @@ class CustomLoginView(SuccessMessageMixin, FormView):
                 messages.add_message(self.request, messages.WARNING,
                                      data.get('message'))
                 return redirect('accounts:login')
-            
 
-@method_decorator(login_required(login_url="{% url 'accounts:login' %}"), name='dispatch')
+@login_required
+def set_unique_tag(request):
+    template_name = 'accounts/unique_tag.html'
+    if request.method == "POST":
+        phone_number = request.POST.get('phone_number')
+        user = CustomUser.objects.get(phone_number=phone_number)
+        
+        form = UniqueTagForm(request.POST or None)
+        if form.is_valid():
+            raw_unique_tag = form.cleaned_data.get('unique_tag')
+            user.unique_tag = raw_unique_tag
+            user.save()
+            messages.success(request, f"{user.unique_tag} saved")
+            return redirect('accounts:profile-view')
+    else:
+        form = UniqueTagForm()
+        context = {'form': form}
+        return render(request, template_name, context)
+
+@method_decorator(login_required(login_url="{% url 'accounts:login' %}"), name="dispatch")
 class DashboardView(SuccessMessageMixin, View):
     template_name = "accounts/profile_view.html"
 
@@ -277,10 +307,13 @@ class DashboardView(SuccessMessageMixin, View):
         my_recs = profile.get_recommend_profiles()
         current_site = get_current_site(self.request)
         domain = current_site.domain
+        # get notifications
+        notifications = Notification.objects.all()
         context = {
             'user': self.request.user,
             'host':domain,
-            'my_recs':my_recs
+            'my_recs':my_recs,
+            'notifications':notifications
         }
         if not request.user.phone_number_verified:
             messages.info(self.request, f"{self.request.user.phone_number} Not verified.")
@@ -292,6 +325,13 @@ class CustomPasswordChangeView(PasswordChangeView):
     form_class = CustomPasswordChangeForm
     template_name = "registration/password_change.html"
     success_url = reverse_lazy('accounts:account-settings')
+    
+
+def delete_notification(request, notification_id):
+    notification = get_object_or_404(Notification, id=notification_id)
+    notification.viewed =  True
+    notification.save()
+    return redirect('accounts:profile-view')
 
 
 # def signup(request):

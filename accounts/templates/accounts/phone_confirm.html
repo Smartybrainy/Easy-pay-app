@@ -14,7 +14,7 @@
                         {% csrf_token %}
                         <input type='hidden' name='phone_number' value='{{user.phone_number}}' />
                     
-                        <div class="form-group{% if form.one_time_password.errors %} has-error{% endif %}">
+                        <div class="form-group{% if form.one_time_password.errors %} has-error  {% endif %}">
                             <label class="control-label text-success" for="id_one_time_password">One Time Password</label>
 
                             <input class="form-control input-sm" id="id_one_time_password" name="one_time_password" type="password" required 

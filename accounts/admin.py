@@ -5,7 +5,16 @@ from django.contrib.auth import get_user_model
 from django.contrib import admin
 User = get_user_model()
 
-from .models import Profile
+from .models import Profile, Notification
+
+def make_user_is_active_false(ModelAdmin, request, queryset):
+    queryset.update(is_active=False)
+make_user_is_active_false.short_description = "set is_active to False"
+
+
+def make_user_is_active_true(ModelAdmin, request, queryset):
+    queryset.update(is_active=True)
+make_user_is_active_true.short_description = 'set is_active to True'
 
 
 class CustomUserAdmin(BaseUserAdmin):
@@ -71,6 +80,7 @@ class CustomUserAdmin(BaseUserAdmin):
     )
     search_fields = ('unique_tag', 'email')
     ordering = ('unique_tag',)
+    actions = [make_user_is_active_false, make_user_is_active_true]
 
     # def get_inline_instances(self, request, obj=None):
     #     if not obj:
@@ -80,4 +90,5 @@ class CustomUserAdmin(BaseUserAdmin):
 
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Profile)
+admin.site.register(Notification)
 

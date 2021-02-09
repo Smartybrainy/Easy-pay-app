@@ -9,7 +9,7 @@ class UserManagerTests(TestCase):
         User = get_user_model()
         user = User.objects.create_user(phone_number='08130165966', email="smartyleey@gmail.com", password='chi11111')
         self.assertEqual(user.phone_number, '08130165966')
-        self.assertTrue(user.is_active)
+        self.assertFalse(user.is_active)
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_superuser)
         try:

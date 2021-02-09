@@ -150,6 +150,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_EMAIL_FROM = config('EMAIL_HOST_USER')
 
 LOGOUT_REDIRECT_URL = "/accounts/login/"
+# LOGIN_REDIRECT_URL = "/"
 
 # for abstract user model
 AUTH_USER_MODEL = 'accounts.CustomUser'

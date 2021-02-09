@@ -63,10 +63,20 @@ class Profile(models.Model):
         return super().delete(*args, **kwargs)
     
 
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=150, blank=True)
+    content = models.TextField()
+    viewed = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.title
+    
+    
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     # username = None
     email = models.EmailField(_('email'), unique=True, blank=True, null=True)
-    unique_tag = models.CharField(_('unique_tag'), max_length=20, unique=True, blank=True)
+    unique_tag = models.CharField(_('unique_tag'), max_length=20, unique=True)
     full_name = models.CharField(_('full name'), max_length=130, blank=True)
     is_staff = models.BooleanField(_('is_staff'), default=False)
     is_active = models.BooleanField(_('is_active'), default=False)
