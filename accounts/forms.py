@@ -14,9 +14,6 @@ COUNTRY_CODE = (
 
 
 class CustomSignUpForm(UserCreationForm):
-    # unique_tag = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={
-    #     'placeholder': 'unique_tag, e.g #name'
-    # }))
     password1 = forms.CharField(max_length=14, widget=forms.PasswordInput(attrs={
         'placeholder': "password"
     }))
@@ -27,30 +24,28 @@ class CustomSignUpForm(UserCreationForm):
         'placeholder': "mobile mumber"
     }))
     country_code = forms.ChoiceField(choices=COUNTRY_CODE)
-    # email = forms.EmailField(max_length=255, widget=forms.TextInput(attrs={
-    #     'placeholder': "email: noreply.example.com"
-    # }))
+    email = forms.EmailField(max_length=255, widget=forms.TextInput(attrs={
+        'placeholder': "example@domain.com"
+    }))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        for fieldname in ['phone_number', 'country_code', 'password1', 'password2']:
+        for fieldname in ['phone_number', 'country_code', 'email', 'password1', 'password2']:
             self.fields[fieldname].help_text = None
             self.fields[fieldname].label = ''
 
     class Meta:
         model = CustomUser
-        fields = ('phone_number', 'country_code', 'password1', 'password2')
+        fields = ('phone_number', 'country_code', 'email', 'password1', 'password2')
 
     def clean_email(self):
-        if self.email:
-            email = self.cleaned_data.get('email')
-            if CustomUser.objects.filter(email=email).exists():
-                raise forms.ValidationError(
-                    "A user with same email already exists.")
-            return email
-        else:
-            pass
+        email = self.cleaned_data.get('email')
+        if CustomUser.objects.filter(email=email).exists():
+            raise forms.ValidationError(
+                "A user with same email already exists.")
+        return email
+    
     
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
@@ -61,7 +56,7 @@ class CustomSignUpForm(UserCreationForm):
     
     
 class PhoneVerificationForm(forms.Form):
-    one_time_password = forms.IntegerField()
+    one_time_password = forms.IntegerField(label='')
 
     class Meta:
         help_texts = {'one_time_password': None}
@@ -105,12 +100,19 @@ class CustomLoginForm(forms.Form):
 
 
 class UniqueTagForm(forms.ModelForm):
-    unique_tag = forms.CharField(max_length=20, widget=forms.TextInput(attrs={
+    unique_tag = forms.CharField(max_length=20, label='', widget=forms.TextInput(attrs={
         'placeholder': "#example tag"
     }))
     class Meta:
         model = CustomUser
         fields = ('unique_tag',)
+        
+        
+class VerifyEmailForm(forms.ModelForm):
+    
+    class Meta:
+        model = CustomUser
+        fields = ['email']
         
         
 class UserUpdateForm(forms.ModelForm):

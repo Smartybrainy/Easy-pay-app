@@ -17,7 +17,8 @@ from .views import (
     set_unique_tag,
     CustomPasswordChangeView,
     AccountSettings,
-    # activate,
+    verify_email,
+    activate,
     account_settings_update,
     delete_notification
 )
@@ -57,7 +58,8 @@ urlpatterns = [
     path('account-settings/', AccountSettings.as_view(), name="account-settings"),
     path('logout/', auth_views.LogoutView.as_view(), name="logout"),
     path('password-change/', CustomPasswordChangeView.as_view(), name="password-change"),
-    # path('activate/<uidb64>/<token>/', activate, name="activate"),
+    path('verify-email/', verify_email, name="verify-email"),
+    path('activate/<uidb64>/<token>/', activate, name="activate"),
     
     path('delete-notice/<notification_id>/', delete_notification, name="delete-notice"),
 ]

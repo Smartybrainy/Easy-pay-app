@@ -16,26 +16,27 @@
             <a href="#" id="bs-deposite" class="mt-1">Deposit</a>
             <a href="#" id="bs-deposite" class="mt-1" title="view balance details">&#x20A6;30,000</a>
 
-            {% if notifications.count > 0 %}
+            {% if notifications %}
             <span title="notifications">
-                    <!--trigger notification modal -->
-                    {% for notice in notifications %}
-                        {% if not notice.viewed %}
-                            <a data-toggle="modal" data-target="#exampleModalNotification">
-                                <i class="fas fa-bell" style="font-size: 1.8rem;color:yellow;cursor:pointer;"></i>
-                            </a>
-                        {% else %}
-                            <a data-toggle="modal" data-target="#exampleModalNotification">
-                                <i class="fas fa-bell" style="font-size: 1.8rem;color:#fff;cursor:pointer;"></i>
-                            </a>
-                        {% endif %}
-                    {% endfor %}
+                <!--trigger notification modal -->
+                <a data-toggle="modal" data-target="#exampleModalNotification">
+                    <i class="fas fa-bell" style="font-size: 1.8rem;color:yellow;cursor:pointer;"></i>
+                </a>
             </span>
             {% endif %}
     
         <!-- logout button -->
             <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-light float-right" title="logout" id="bs-logout"><i class="fas fa-power-off fa-lg"></i></a>
     </div>
+
+    <!-- EMAIL CONFIRMATION -->
+    {% if not user.profile.email_confirmed %}
+        <div class="alert alert-warning text-center">
+            Hi {{ user.unique_tag }} welcome to EasyPay
+            please verify your email.
+            <a href="{% url 'accounts:verify-email' %}" class="btn btn-outline-success btn-sm">verify</a>
+        </div>
+    {% endif %}
 
     <!-- Main section -->
     <section>
@@ -186,8 +187,9 @@
                                 <h5>{{ notice.title }}</h5>
                                 <blockquote>
                                     {{ notice.content }}
+                                    <br>
+                                    <a href="{% url 'accounts:delete-notice' notice.id %}" class="badge badge-primary">mark as read</a> 
                                 </blockquote>
-                                <a href="{% url 'accounts:delete-notice' notice.id %}" class="badge badge-primary">mark as read</a> 
                             {% endif %}
                         {% empty %}
                             <p class="text-muted">No notification</p>

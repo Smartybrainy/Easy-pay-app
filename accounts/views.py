@@ -32,6 +32,7 @@ from .forms import (
     PhoneVerificationForm,
     CustomLoginForm,
     UniqueTagForm,
+    VerifyEmailForm,
     UserUpdateForm,
     ProfileUpdateForm,
     CustomPasswordChangeForm
@@ -305,6 +306,7 @@ class DashboardView(SuccessMessageMixin, View):
     def get(self, request):
         profile = Profile.objects.get(user=request.user)
         my_recs = profile.get_recommend_profiles()
+        
         current_site = get_current_site(self.request)
         domain = current_site.domain
         # get notifications
@@ -332,6 +334,62 @@ def delete_notification(request, notification_id):
     notification.viewed =  True
     notification.save()
     return redirect('accounts:profile-view')
+
+
+def verify_email(request):
+    template_name = 'accounts/verify_email.html'
+    if request.method == 'POST':
+        form = VerifyEmailForm(request.POST or None, instance=request.user)
+        if form.is_valid():
+            user = form.save(commit=False)
+            
+            # for email confirmation
+            raw_email = form.cleaned_data.get('email')
+            domain = get_current_site(request).domain
+            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+            token = account_activation_token.make_token(user)
+            link = reverse('accounts:activate', kwargs={'uidb64': uidb64, 'token': token})
+            activate_url = domain+link
+
+            email_subject = 'Activate Your Easypay Account.'
+            email_body = f'Hi {user.unique_tag} Please use this link to activate your account,\n If you are unable to click the link copy it to a new browser tab.\n\n{activate_url}'
+            send_email = EmailMessage(
+                email_subject,
+                email_body,
+                'noreply@easypay.com',
+                [raw_email],
+            )
+            EmailThread(send_email).start()
+            messages.info(
+                request, "An email has been sent to your mailbox click on the link to complete your email verification.")
+            return redirect('accounts:profile-view')
+        else:
+            pass
+    else:
+        form = VerifyEmailForm()
+        context = {'form':form}
+    return render(request, template_name, context)
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+        user = None
+    
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.profile.email_confirmed = True
+        user.save()
+        login(request, user)
+        messages.success(request, f"{user.unique_tag} your email verification was successful")
+        return redirect('accounts:profile-view')
+    else:
+        messages.success(request, f"{user.unique_tag} your email verification was cancelled, please retry.")
+    return redirect('/')
+
+
 
 
 # def signup(request):
@@ -383,21 +441,3 @@ def delete_notification(request, notification_id):
 
 #     context = {'form': form}
 #     return render(request, 'accounts/signup.html', context)
-    
-
-# def activate(request, uidb64, token):
-#     try:
-#         uid = force_text(urlsafe_base64_decode(uidb64))
-#         user = CustomUser.objects.get(pk=uid)
-#     except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-#         user = None
-    
-#     if user is not None and account_activation_token.check_token(user, token):
-#         user.is_active = True
-#         user.profile.email_confirmed = True
-#         user.save()
-#         login(request, user)
-#         return redirect('accounts:profile-view')
-#     return redirect('/')
-
-    

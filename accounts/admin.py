@@ -87,8 +87,15 @@ class CustomUserAdmin(BaseUserAdmin):
     #         return list()
     #     return super(CustomUserAdmin, self).get_inline_instances(request, obj)
 
+@admin.register(Notification)
+class AdminNotification(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'title',
+        'viewed',
+        'date_created'
+)
 
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Profile)
-admin.site.register(Notification)
 

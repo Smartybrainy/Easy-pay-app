@@ -19,6 +19,7 @@ STATUS = (
     ("Female", "Female")
 )
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     email_confirmed = models.BooleanField(default=False)
@@ -68,10 +69,14 @@ class Notification(models.Model):
     title = models.CharField(max_length=150, blank=True)
     content = models.TextField()
     viewed = models.BooleanField(default=False)
+    date_created = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return self.title
     
+    class Meta:
+        ordering = ['-date_created']
+  
     
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     # username = None
