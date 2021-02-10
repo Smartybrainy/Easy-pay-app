@@ -31,10 +31,10 @@
 
     <!-- EMAIL CONFIRMATION -->
     {% if not user.profile.email_confirmed %}
-        <div class="alert alert-warning text-center">
+        <div class="alert alert-warning text-center" style="z-index: 1;">
             Hi {{ user.unique_tag }} welcome to EasyPay
             please verify your email.
-            <a href="{% url 'accounts:verify-email' %}" class="btn btn-outline-success btn-sm">verify</a>
+            <a href="{% url 'accounts:verify-email' %}" class="btn btn-success btn-sm btn-block">verify</a>
         </div>
     {% endif %}
 
