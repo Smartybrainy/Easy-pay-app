@@ -7,7 +7,16 @@
 </head>
 
 <body class="bs-success">
-        
+    
+    <nav class="container mt-1">
+        <a href="{% url 'accounts:profile-view' %}" class="bs-arror-links">
+            <i class="fas fa-arrow-left fa-xs text-success"></i>
+        </a> 
+        <span class="bs-thick-font">Account</span>
+        <a href="#" class="bs-normal-links float-right">History</a>
+        <hr />
+    </nav>
+
     <!-- media section -->
     <div class="container mt-4">
         <div class="row text-light" id="bs-font">
@@ -37,12 +46,6 @@
     <!-- navigations button -->
    <div class="container mt-3 text-center">
         <div class="row rounded shadow shadow-lg">
-            <div class="col-md-3 p-3">
-                <a href="{% url 'accounts:profile-view' %}" class="bs-account-settings-backarror">
-                    <i class="fas fa-backward mr-2"></i>Profile
-                </a>
-            </div>
-
             <!-- Button trigger modal -->
             <div class="col-md-6 p-3 bg-light">
                     {% if not user.two_factor_auth %}
@@ -65,7 +68,7 @@
                     </button>
             </div>
 
-            <div class="col-md-3 p-3">
+            <div class="col-md-6 p-3">
                 <a href="{% url 'accounts:logout' %}" title="continue to logout" class="bs-account-settings-signout"><i
                         class="fas fa-power-off mr-2"></i>Sign out
                 </a>

@@ -1,3 +1,23 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+    --thick-font: 20px;
+    --thick-font-weight: 600;
+    --primary-padding: 10px;
+    --primary-margin: 15px;
+    --primary-white: #fff;
+    --primary-gray: #ccc;
+    --primary-green: #00fa9a;
+    --main-transition: all 0.3 linear;
+    --rounded-radius: 30px;
+    --text-shadow: 2px 2px 3px 2px rgba(0, 0, 0, 0.4);
+    --text-shadow: 2px 2px 2px  rgba(0, 0, 0, 0.4);
+}
+
 #bs-progress-container {
   position: fixed !important;
   top: 0;
@@ -15,4 +35,40 @@
   height: 5px;
   background-color: lightseagreen;
   z-index: 10 !important;
+}
+
+/* For the basic arror links and fonts */
+.bs-thick-font {
+    font-size: var(--thick-font);
+    font-weight: var(--thick-font-weight);
+}
+
+.bs-normal-links {
+    text-decoration: none;
+    cursor: pointer;
+    font-size: var(--thick-font);
+    font-weight: var(--thick-font-weight);
+}
+.bs-normal-links:hover{
+    text-decoration: none;
+}
+.bs-arror-links {
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: var(--thick-font-weight);
+}
+.bs-arror-links:hover{
+    text-decoration: none;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }

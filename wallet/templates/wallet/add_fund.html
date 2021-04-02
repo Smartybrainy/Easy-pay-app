@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-1">
+    <nav>
+        <a href="{% url 'accounts:profile-view' %}" class="bs-arror-links">
+            <i class="fas fa-arrow-left fa-xs text-success"></i>
+        </a> 
+        <span class="bs-thick-font">Fund</span>
+        <a href="#" class="bs-normal-links float-right">History</a>
+        <hr />
+    </nav>
+
+    <div class="bs-add-fund-caption">
+        Add funds to your EasyPay account
+    </div>
+    <form action="{% url 'wallet:add-fund' %}" method="POST">
+        {% csrf_token %}
+        <div class="bs-amount-input-container">
+            <input type="number" name="amount" id="amount"
+            class="bs-amount"
+            placeholder="&#x20A6; Amount"
+            oninput="controlInput()"
+            type = "number"
+            maxlength = "8"
+            >
+        </div>
+        <div class="bs-next">
+            <button type="submit" class="bs-add-fund-next-link">Next</button>
+        </div>
+    </form>
+</div>
+{% include 'fragments/add_fund_scripts.html' %}
+
+{% endblock content %}

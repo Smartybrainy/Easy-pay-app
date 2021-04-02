@@ -1,0 +1,14 @@
+<script>
+    var bsProgressContainer = document.getElementById('bs-progress-container');
+    var bsProgressBar = document.getElementById('bs-progress-bar');
+
+    window.onscroll = function(){
+        scrollFunc()
+    }
+    function scrollFunc(){
+        let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        let winHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        let scrolled = (winScroll / winHeight) * 100;
+        bsProgressBar.style.width = `${scrolled}%`;
+    }
+</script>

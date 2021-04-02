@@ -25,7 +25,7 @@ class CustomSignUpForm(UserCreationForm):
     }))
     country_code = forms.ChoiceField(choices=COUNTRY_CODE)
     email = forms.EmailField(max_length=255, widget=forms.TextInput(attrs={
-        'placeholder': "example@domain.com"
+        'placeholder': "email"
     }))
 
     def __init__(self, *args, **kwargs):

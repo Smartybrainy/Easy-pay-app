@@ -34,6 +34,7 @@ DEFAULT_APP = [
 LOCAL_APP = [
     'epay.apps.EpayConfig',
     'accounts.apps.AccountsConfig',
+    'wallet'
 ]
 
 THIRD_PARTY_APP = [

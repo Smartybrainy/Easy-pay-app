@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static 'styles/homepage.css' %}">
     <link rel="stylesheet" href="{% static 'styles/profilepage.css' %}">
     <link rel="stylesheet" href="{% static 'styles/basestyle.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/wallet.css' %}">
     <link rel="icon" href="{% static 'fav/naira-sign2.ico' %}">
     <meta name="Author" content="Smartybrainy">
 
@@ -51,21 +52,7 @@
     {% endblock content %}
 </body>
 <!-- for progress bar. -->
-<script>
-    var bsProgressContainer = document.getElementById('bs-progress-container');
-    var bsProgressBar = document.getElementById('bs-progress-bar');
-
-    window.onscroll = function(){
-        scrollFunc()
-    }
-    function scrollFunc(){
-        let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        let winHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        let scrolled = (winScroll / winHeight) * 100;
-        bsProgressBar.style.width = `${scrolled}%`;
-    }
-</script>
-
+{% include 'fragments/scripts.html' %}
 
 <script src="{% static 'offline/jquery/jquery-3.5.1.min.js' %}"></script>
 <script src="{% static 'offline/js/bootstrap.min.js' %}"></script>

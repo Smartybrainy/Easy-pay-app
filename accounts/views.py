@@ -27,6 +27,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.views import FormView
 from .authy import send_verification_code, verify_sent_code
 
+from wallet.models import Wallet
+
 from .forms import (
     CustomSignUpForm,
     PhoneVerificationForm,
@@ -53,25 +55,6 @@ class EmailThread(threading.Thread):
     def run(self):
         self.send_email.send(fail_silently=False)
 
-def account_settings_update(request):
-    if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST or None, instance=request.user)
-        p_form = ProfileUpdateForm(request.POST or None,
-                        request.FILES or None,
-                        instance=request.user.profile)
-        if u_form.is_valid() and p_form.is_valid():
-            u_form.save()
-            p_form.save()
-            messages.success(request, f'{request.user.unique_tag} account was updated.')
-            return redirect('accounts:account-settings')
-    else:
-        u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm(instance=request.user.profile)  
-        context = {
-            'u_form': u_form,
-            'p_form': p_form
-        }
-        return render(request, "accounts/account_settings.html", context)
 
 class AccountSettings(LoginRequiredMixin, View):
     def get(self, request):
@@ -94,7 +77,7 @@ class AccountSettings(LoginRequiredMixin, View):
                 messages.info(request, "You have enabled 2factor security")
             request.user.save()
         else:
-            pass #then return redirect.
+            pass
         
             # User update form
             u_form = UserUpdateForm(request.POST or None, instance=request.user)
@@ -303,9 +286,10 @@ def set_unique_tag(request):
 class DashboardView(SuccessMessageMixin, View):
     template_name = "accounts/profile_view.html"
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         profile = Profile.objects.get(user=request.user)
         my_recs = profile.get_recommend_profiles()
+        user_wallet = Wallet.objects.filter(user=request.user).last()
         
         current_site = get_current_site(self.request)
         domain = current_site.domain
@@ -315,7 +299,8 @@ class DashboardView(SuccessMessageMixin, View):
             'user': self.request.user,
             'host':domain,
             'my_recs':my_recs,
-            'notifications':notifications
+            'notifications':notifications,
+            'user_wallet': user_wallet
         }
         if not request.user.phone_number_verified:
             messages.info(self.request, f"{self.request.user.phone_number} Not verified.")
@@ -336,10 +321,11 @@ def delete_notification(request, notification_id):
     return redirect('accounts:profile-view')
 
 
+@login_required
 def verify_email(request):
     template_name = 'accounts/verify_email.html'
     if request.method == 'POST':
-        form = VerifyEmailForm(request.POST or None, instance=request.user)
+        form = VerifyEmailForm(request.POST or None, instance=request.user.email)
         if form.is_valid():
             user = form.save(commit=False)
             
@@ -388,56 +374,3 @@ def activate(request, uidb64, token):
     else:
         messages.success(request, f"{user.unique_tag} your email verification was cancelled, please retry.")
     return redirect('/')
-
-
-
-
-# def signup(request):
-#     profile_id = request.session.get('ref_profile')
-#     form = CustomSignUpForm(request.POST or None)
-#     if form.is_valid():
-#         user = form.save(commit=False)
-#         user.is_active = False
-#         user.save()
-#         # adding the mobile while signup
-#         user.refresh_from_db()
-#         user.profile.mobile = form.cleaned_data.get('mobile')
-#         user.save()
-
-#         # for email confirmation
-#         raw_email = form.cleaned_data.get('email')
-#         domain = get_current_site(request).domain
-#         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-#         token = account_activation_token.make_token(user)
-#         link = reverse('accounts:activate', kwargs={'uidb64': uidb64, 'token': token})
-#         activate_url = domain+link
-
-#         email_subject = 'Activate Your Easypay Account.'
-#         email_body = f'Hi {user.username} Please use this link to activate your account,\n If you are unable to click the link copy it to a new browser tab.\n\n{activate_url}'
-#         send_email = EmailMessage(
-#             email_subject,
-#             email_body,
-#             'noreply@easypay.com',
-#             [raw_email],
-#         )
-#         EmailThread(send_email).start()
-
-#         # for the referal
-#         if profile_id is not None:
-#             recommended_by_profile = Profile.objects.get(id=profile_id)
-#             form = CustomSignUpForm()
-#             instance = form.save()
-#             registered_user = CustomUser.objects.get(id=instance.id)
-#             registered_profile = Profile.objects.get(user=registered_user)
-#             registered_profile.recommended_by = recommended_by_profile.user
-#             registered_profile.save()
-#             messages.info(
-#                 request, "An email has been sent to your mailbox...")
-#             return redirect('/')
-#         else:
-#             messages.info(
-#                 request, "An email has been sent to your mailbox...")
-#             return redirect('/')
-
-#     context = {'form': form}
-#     return render(request, 'accounts/signup.html', context)

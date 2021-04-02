@@ -1,0 +1,55 @@
+.bs-add-fund-caption {
+    background-color: var(--primary-gray);
+    padding: var(--primary-padding);
+    margin: 20px 0;
+    border-radius: 5px;
+    text-align: center;
+}
+
+
+div button.bs-add-fund-next-link {
+    display: flex;
+    justify-content: center;
+}
+
+button.bs-add-fund-next-link{
+    color: var(--primary-white) !important;
+    text-decoration: none;
+    font-size: var(--thick-font);
+    font-weight: var(--thick-font-weight);
+    cursor: not-allowed;
+    /* the outer look */
+    background-color: var(--primary-gray);
+    padding: var(--primary-padding);
+    margin-top: var(--primary-margin);
+    display: inline-block;
+    width: 20vw;
+    border-radius: var(--rounded-radius);
+    margin: auto;
+    text-align: center;
+    /* after changing to button */
+    outline: none !important;
+}
+button.bs-add-fund-next-link:hover{
+    text-decoration: none;
+    box-shadow: var(--text-shadow);
+}
+button.bs-add-fund-next-link:active{
+    box-shadow: var(--text-shadow-active);
+}
+
+/* input type number styling */
+.bs-amount-input-container {
+    display: flex;
+    justify-content: center;
+}
+.bs-amount {
+    border: none;
+    outline: none;
+    border-bottom: 2px solid #ccc;
+    margin: 2rem 0;
+    text-align: left;
+}
+.bs-amount:focus{
+    border-bottom: 2px solid var(--primary-green);
+}

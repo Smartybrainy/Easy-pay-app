@@ -99,6 +99,7 @@
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
   width: 10rem;
   transition: var(--main-transition);
+  cursor: pointer;
 }
 .bs-options-container > .bs-option:hover {
   background-color: var(--primary-green);
@@ -130,6 +131,19 @@
 }
 #bs-toggle-btn {
   border-radius: 50%;
+}
+
+/* the pay input */
+.bs-pay-amount {
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    border-bottom: 2px solid #ccc;
+    padding: 1rem 0;
+    text-align: center;
+}
+.bs-pay-amount:focus{
+    border-bottom: 2px solid var(--primary-green);
 }
 /* End of dashboard styling.... */
 

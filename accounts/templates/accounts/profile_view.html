@@ -13,8 +13,16 @@
                 <i class="fas fa-user fa-lg"></i>
             </button>
         
-            <a href="#" id="bs-deposite" class="mt-1">Deposit</a>
-            <a href="#" id="bs-deposite" class="mt-1" title="view balance details">&#x20A6;30,000</a>
+            <a href="{% url 'wallet:add-fund' %}" id="bs-deposite" class="mt-1">Deposit</a>
+            {% if user_wallet.balance %}
+            <a href="#" id="bs-deposite" class="mt-1" title="view balance details">
+                &#x20A6;{{ user_wallet.balance | floatformat:2 }}
+            </a>
+            {% else %}
+            <a href="#" id="bs-deposite" class="mt-1" title="view balance details">
+                &#x20A6;0.00
+            </a>
+            {% endif %}
 
             {% if notifications %}
             <span title="notifications">
@@ -59,19 +67,23 @@
             </div>
 
             <div class="container w-75">
-                <form action="">
+                <form>
                     <div class="text-center">
-                        <span style="font-size: 2rem;">&#x20A6;</span>
+                        <!-- <span style="font-size: 2rem;">&#x20A6;</span> -->
                         <output id="amountOutput" ></output>
                     </div>
-                    <input type="number" name="amount" id="amount" placeholder="&#x20A6; enter amount to pay" autofocus class="form-control" min="1" max="10000000000"
-                    oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                    type = "number"
-                    maxlength = "11"
-                    >
-                    <br><br>
-                    <button type="button" class="btn btn-primary">Cash out</button>
-                    <button type="button" class="btn btn-primary float-right">Pay</button>
+                    <div class="bs-amount-input-container mb-3">
+                        <input type="number" name="amount" id="amount" 
+                        placeholder="&#x20A6; enter amount to pay" 
+                        autofocus
+                        class="bs-pay-amount"
+                        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                        type = "number"
+                        maxlength = "8"
+                        >
+                    </div>
+                    <button type="button" class="btn btn-success">Cash out</button>
+                    <button type="button" id="bs-pay" class="btn btn-success float-right disabled">Pay</button>
                 </form>
             </div>
         </div>
@@ -155,10 +167,15 @@
                     {% endif %}
                     <hr>
                     {% if request.user.is_authenticated %}
-                    <h6 class="text-muted">Hi {{ request.user.unique_tag }} below is your referral link:</h6>
-                    <a href="{% if request.is_secured %}https://{% else %}http://{% endif %}{{ host }}/{{ request.user.profile.web_code }}"
-                        target="_blank">{{ request.scheme }}://{{ request.META.HTTP_HOST }}/{{ request.user.profile.web_code }}</a>
-                    <hr>
+                        <h6 class="text-muted">Hi {{ request.user.unique_tag }} below is your referral link:</h6>
+                        <a href="{% if request.is_secured %}https://{% else %}http://{% endif %}{{ host }}/{{ request.user.profile.web_code }}"
+                        target="_blank">
+                            {{ request.scheme }}://{{ request.META.HTTP_HOST }}/{{ request.user.profile.web_code }}
+                        </a>
+                        <input id="bs-web-referal-code"
+                        value="{% if request.is_secured %}https://{% else %}http://{% endif %}{{ host }}/{{ request.user.profile.web_code }}">
+                        <button class="btn btn-primary btn-sm" onclick="clickToCopyWebReferal()">click to copy</button> 
+                        <hr>
                     {% endif %}
                 </div>
                 <!-- <div class="modal-footer">
@@ -170,8 +187,10 @@
     <!-- Endn modal for recommended user... -->
 
     <!-- For notifications modal... -->
-    <div class="modal fade" id="exampleModalNotification" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="exampleModalNotification" 
+    tabindex="-1" role="dialog" 
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -201,18 +220,8 @@
     </div>
     <!-- End of notifications modal... -->
 </body>
-<script>
-    var amountOutput = document.getElementById('amountOutput')
-    var amount = document.getElementById('amount')
-
-    amount.addEventListener('keyup', function(){
-        var output = amount.value
-        amountOutput.innerHTML = output;
-        amountOutput.style.fontSize = '2rem'
-    })
-</script>
 {% endblock content %}
 
 {% block extra_script %}
-<script src="{% static 'public_scripts/user_profile_container.js' %}"></script>
+<script src="{% static 'public_scripts/profile_view.js' %}"></script>
 {% endblock extra_script %}

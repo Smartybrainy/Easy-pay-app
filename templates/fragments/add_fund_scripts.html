@@ -1,0 +1,16 @@
+<script>
+    const amount = document.getElementById('amount')
+    var nextBtn = document.querySelector('.bs-add-fund-next-link')
+    function controlInput(){
+        if (amount.value.length > amount.maxLength){
+            amount.value = amount.value.slice(0, amount.maxLength);
+        }
+        if (amount.value >= 100){
+            nextBtn.style.cursor = "pointer"
+            nextBtn.style.backgroundColor = "#00fa9a"
+        }else{
+            nextBtn.style.cursor = "not-allowed"
+            nextBtn.style.backgroundColor = "#ccc"
+        }
+    }
+</script>

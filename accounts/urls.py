@@ -19,7 +19,6 @@ from .views import (
     AccountSettings,
     verify_email,
     activate,
-    account_settings_update,
     delete_notification
 )
 

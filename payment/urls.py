@@ -9,6 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('epay.urls', namespace="epay")),
     path('accounts/', include('accounts.urls', namespace="accounts")),
+    path('wallet/', include('wallet.urls', namespace="wallet")),
     path('favicon/', RedirectView.as_view(url=staticfiles_storage.url('fav/naira-sign2.ico'))),
 ]
 if settings.DEBUG:
