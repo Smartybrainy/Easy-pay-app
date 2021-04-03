@@ -40,7 +40,7 @@ LOCAL_APP = [
 THIRD_PARTY_APP = [
     'crispy_forms',
     'rest_framework',
-    'phonenumber_field'
+    # 'phonenumber_field'
 ]
 
 INSTALLED_APPS = DEFAULT_APP + LOCAL_APP + THIRD_PARTY_APP
