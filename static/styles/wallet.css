@@ -17,7 +17,6 @@ button.bs-add-fund-next-link{
     text-decoration: none;
     font-size: var(--thick-font);
     font-weight: var(--thick-font-weight);
-    cursor: not-allowed;
     /* the outer look */
     background-color: var(--primary-gray);
     padding: var(--primary-padding);
@@ -25,6 +24,7 @@ button.bs-add-fund-next-link{
     display: inline-block;
     width: 20vw;
     border-radius: var(--rounded-radius);
+    border: none;
     margin: auto;
     text-align: center;
     /* after changing to button */

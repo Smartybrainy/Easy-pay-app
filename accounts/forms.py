@@ -37,7 +37,8 @@ class CustomSignUpForm(UserCreationForm):
 
     class Meta:
         model = CustomUser
-        fields = ('phone_number', 'country_code', 'email', 'password1', 'password2')
+        fields = ('phone_number', 'country_code',
+                  'email', 'password1', 'password2')
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -45,24 +46,23 @@ class CustomSignUpForm(UserCreationForm):
             raise forms.ValidationError(
                 "A user with same email already exists.")
         return email
-    
-    
+
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
         if CustomUser.objects.filter(phone_number=phone_number).exists():
             raise forms.ValidationError(
                 _("Another user with this phone number already exists please try another"))
         return phone_number
-    
-    
+
+
 class PhoneVerificationForm(forms.Form):
     one_time_password = forms.IntegerField(label='')
 
     class Meta:
         help_texts = {'one_time_password': None}
         fields = ['one_time_password', ]
-  
-    
+
+
 class CustomLoginForm(forms.Form):
     phone_number = forms.IntegerField(widget=forms.NumberInput(attrs={
         'placeholder': 'mobile number',
@@ -70,7 +70,7 @@ class CustomLoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={
         'placeholder': 'password'
     }))
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for fieldname in self.fields:
@@ -103,18 +103,19 @@ class UniqueTagForm(forms.ModelForm):
     unique_tag = forms.CharField(max_length=20, label='', widget=forms.TextInput(attrs={
         'placeholder': "#example tag"
     }))
+
     class Meta:
         model = CustomUser
         fields = ('unique_tag',)
-        
-        
+
+
 class VerifyEmailForm(forms.ModelForm):
-    
+
     class Meta:
         model = CustomUser
-        fields = ['email']
-        
-        
+        fields = ('email',)
+
+
 class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField(required=False)
     unique_tag = forms.CharField(required=False)
@@ -134,31 +135,30 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['gender', 'image']
-        
-        
+
+
 class CustomPasswordChangeForm(PasswordChangeForm):
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for fieldname in self.fields:
             self.fields[fieldname].help_text = None
-          
+
     class Meta:
         model = CustomUser
         fields = '__all__'
-            
+
 
 class CustomUserCreationForm(UserCreationForm):
-    
+
     class Meta:
         class Meta(UserCreationForm.Meta):
             model = CustomUser
             fields = ('phone_number',)
-        
-        
+
+
 class CustomChangeForm(UserChangeForm):
-    
+
     class Meta:
         model = CustomUser
         fields = ('phone_number',)
-        

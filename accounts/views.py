@@ -1,34 +1,7 @@
-from django.shortcuts import render, redirect, reverse
-
-from django.contrib.auth import login, authenticate
-from django.contrib.auth import get_user_model
-CustomUser = get_user_model()
-from django.views.generic import ListView, TemplateView, View
-
-# for the signup view
-from django.conf import settings
-from django.core.mail import EmailMessage
-from django.urls import reverse_lazy
-from django.contrib.auth.views import PasswordChangeView
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
-from django.shortcuts import get_object_or_404
-
-import json
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.http import HttpResponse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.auth.views import FormView
-from .authy import send_verification_code, verify_sent_code
-
-from wallet.models import Wallet
-
+import threading
+import random
+from .models import Profile, Notification
+from .tokens import account_activation_token
 from .forms import (
     CustomSignUpForm,
     PhoneVerificationForm,
@@ -38,16 +11,39 @@ from .forms import (
     UserUpdateForm,
     ProfileUpdateForm,
     CustomPasswordChangeForm
-                    )
-from .tokens import account_activation_token
-from .models import Profile, Notification
+)
+from wallet.models import Wallet
+from .authy import send_verification_code, verify_sent_code
+from django.contrib.auth.views import FormView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponse
+from django.utils.decorators import method_decorator
+import json
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_text
+from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth.views import PasswordChangeView
+from django.urls import reverse_lazy
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django.views.generic import ListView, TemplateView, View
+from django.shortcuts import render, redirect, reverse
 
-import random
-import threading
+from django.contrib.auth import login, authenticate
+from django.contrib.auth import get_user_model
+CustomUser = get_user_model()
+
+# for the signup view
 
 
 class EmailThread(threading.Thread):
-    
+
     def __init__(self, send_email):
         self.send_email = send_email
         threading.Thread.__init__(self)
@@ -59,13 +55,13 @@ class EmailThread(threading.Thread):
 class AccountSettings(LoginRequiredMixin, View):
     def get(self, request):
         u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm(instance=request.user.profile)  
+        p_form = ProfileUpdateForm(instance=request.user.profile)
         context = {
             'u_form': u_form,
             'p_form': p_form
         }
         return render(request, "accounts/account_settings.html", context)
-    
+
     def post(self, request):
         # Check for 2factor security
         if 'two_factor_auth' in request.POST:
@@ -78,21 +74,19 @@ class AccountSettings(LoginRequiredMixin, View):
             request.user.save()
         else:
             pass
-        
+
             # User update form
-            u_form = UserUpdateForm(request.POST or None, instance=request.user)
+            u_form = UserUpdateForm(
+                request.POST or None, instance=request.user)
             p_form = ProfileUpdateForm(request.POST or None,
-                            request.FILES or None,
-                            instance=request.user.profile)
+                                       request.FILES or None,
+                                       instance=request.user.profile)
             if u_form.is_valid() and p_form.is_valid():
                 u_form.save()
                 p_form.save()
-                messages.success(request, f'{request.user.unique_tag} account was updated.')
+                messages.success(
+                    request, f'{request.user.unique_tag} account was updated.')
         return redirect('accounts:account-settings')
-
-    
-    
-    
 
 
 class CustomSignupView(SuccessMessageMixin, FormView):
@@ -112,7 +106,7 @@ class CustomSignupView(SuccessMessageMixin, FormView):
     def form_valid(self, form):
         # Get the profile session_key
         profile_id = self.request.session.get('ref_profile')
-        
+
         if form.is_valid():
             user = form.save()
 
@@ -127,14 +121,14 @@ class CustomSignupView(SuccessMessageMixin, FormView):
             messages.add_message(self.request, messages.WARNING,
                                  'verification code not sent. \n'
                                  'Please re-register.')
-            user.delete() #make sure user not saved
+            user.delete()  # make sure user not saved
             return redirect('accounts:signup')
         data = json.loads(response.text)
 
         # print(response.status_code, response.reason)
         # print(response.text)
         # print(data['success'])
-        
+
         if data.get('success') == False:
             messages.add_message(self.request, messages.WARNING,
                                  data.get('message'))
@@ -150,7 +144,7 @@ class CustomSignupView(SuccessMessageMixin, FormView):
                 registered_profile.save()
             else:
                 pass
-            
+
             kwargs = {'user': user}
             return phone_verification_view(self.request, **kwargs)
 
@@ -178,13 +172,13 @@ def phone_verification_view(request, **kwargs):
                 if user.is_active == False:
                     user.is_active = True
                     user.save()
-                    
+
                 login(request, user)
-                    
+
                 if user.phone_number_verified is False:
                     user.phone_number_verified = True
                     user.save()
-                    
+
                 # check for unique_tag before accessing dashboard...
                 if user.unique_tag:
                     return redirect('accounts:profile-view')
@@ -229,7 +223,7 @@ class CustomLoginView(SuccessMessageMixin, FormView):
     def form_valid(self, form):
         if form.is_valid():
             user = form.login(self.request)
-        
+
         if user.two_factor_auth is False:
             login(self.request, user)
             # check for unique_tag before accessing dashboard...
@@ -263,13 +257,14 @@ class CustomLoginView(SuccessMessageMixin, FormView):
                                      data.get('message'))
                 return redirect('accounts:login')
 
+
 @login_required
 def set_unique_tag(request):
     template_name = 'accounts/unique_tag.html'
     if request.method == "POST":
         phone_number = request.POST.get('phone_number')
         user = CustomUser.objects.get(phone_number=phone_number)
-        
+
         form = UniqueTagForm(request.POST or None)
         if form.is_valid():
             raw_unique_tag = form.cleaned_data.get('unique_tag')
@@ -282,6 +277,7 @@ def set_unique_tag(request):
         context = {'form': form}
         return render(request, template_name, context)
 
+
 @method_decorator(login_required(login_url="{% url 'accounts:login' %}"), name="dispatch")
 class DashboardView(SuccessMessageMixin, View):
     template_name = "accounts/profile_view.html"
@@ -290,20 +286,21 @@ class DashboardView(SuccessMessageMixin, View):
         profile = Profile.objects.get(user=request.user)
         my_recs = profile.get_recommend_profiles()
         user_wallet = Wallet.objects.filter(user=request.user).last()
-        
+
         current_site = get_current_site(self.request)
         domain = current_site.domain
         # get notifications
         notifications = Notification.objects.all()
         context = {
             'user': self.request.user,
-            'host':domain,
-            'my_recs':my_recs,
-            'notifications':notifications,
+            'host': domain,
+            'my_recs': my_recs,
+            'notifications': notifications,
             'user_wallet': user_wallet
         }
         if not request.user.phone_number_verified:
-            messages.info(self.request, f"{self.request.user.phone_number} Not verified.")
+            messages.info(
+                self.request, f"{self.request.user.phone_number} Not verified.")
         return render(self.request, self.template_name, context)
         # post method used in accounts/account-settings view
 
@@ -312,11 +309,11 @@ class CustomPasswordChangeView(PasswordChangeView):
     form_class = CustomPasswordChangeForm
     template_name = "registration/password_change.html"
     success_url = reverse_lazy('accounts:account-settings')
-    
+
 
 def delete_notification(request, notification_id):
     notification = get_object_or_404(Notification, id=notification_id)
-    notification.viewed =  True
+    notification.viewed = True
     notification.save()
     return redirect('accounts:profile-view')
 
@@ -325,35 +322,40 @@ def delete_notification(request, notification_id):
 def verify_email(request):
     template_name = 'accounts/verify_email.html'
     if request.method == 'POST':
-        form = VerifyEmailForm(request.POST or None, instance=request.user.email)
+        form = VerifyEmailForm(request.POST or None, instance=request.user)
         if form.is_valid():
             user = form.save(commit=False)
-            
-            # for email confirmation
-            raw_email = form.cleaned_data.get('email')
-            domain = get_current_site(request).domain
-            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-            token = account_activation_token.make_token(user)
-            link = reverse('accounts:activate', kwargs={'uidb64': uidb64, 'token': token})
-            activate_url = domain+link
 
-            email_subject = 'Activate Your Easypay Account.'
-            email_body = f'Hi {user.unique_tag} Please use this link to activate your account,\n If you are unable to click the link copy it to a new browser tab.\n\n{activate_url}'
-            send_email = EmailMessage(
-                email_subject,
-                email_body,
-                'noreply@easypay.com',
-                [raw_email],
-            )
-            EmailThread(send_email).start()
-            messages.info(
-                request, "An email has been sent to your mailbox click on the link to complete your email verification.")
-            return redirect('accounts:profile-view')
+            try:
+                # for email confirmation
+                raw_email = form.cleaned_data.get('email')
+                domain = get_current_site(request).domain
+                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                token = account_activation_token.make_token(user)
+                link = reverse('accounts:activate', kwargs={
+                    'uidb64': uidb64, 'token': token})
+                activate_url = domain+link
+
+                email_subject = 'Activate Your Easypay Account.'
+                email_body = f'Hi {user.unique_tag} Please use this link to activate your account,\n If you are unable to click the link copy it to a new browser tab.\n\n{activate_url}'
+                send_email = EmailMessage(
+                    email_subject,
+                    email_body,
+                    'noreply@easypay.com',
+                    [raw_email],
+                )
+                EmailThread(send_email).start()
+                messages.info(
+                    request, "An email has been sent to your mailbox click on the link to complete your email verification.")
+                return redirect('accounts:profile-view')
+            except ObjectDoesNotExist:
+                messages.warning(request, "User has no profile.")
         else:
             pass
     else:
-        form = VerifyEmailForm()
-        context = {'form':form}
+        form = VerifyEmailForm(instance=request.user)
+
+    context = {'form': form}
     return render(request, template_name, context)
 
 
@@ -363,14 +365,16 @@ def activate(request, uidb64, token):
         user = CustomUser.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
-    
+
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.profile.email_confirmed = True
         user.save()
         login(request, user)
-        messages.success(request, f"{user.unique_tag} your email verification was successful")
+        messages.success(
+            request, f"{user.unique_tag} your email verification was successful")
         return redirect('accounts:profile-view')
     else:
-        messages.success(request, f"{user.unique_tag} your email verification was cancelled, please retry.")
+        messages.success(
+            request, f"{user.unique_tag} your email verification was cancelled, please retry.")
     return redirect('/')

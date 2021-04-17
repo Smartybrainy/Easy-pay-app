@@ -6,7 +6,15 @@
     <title>{% block title %}| E-tag{% endblock title %}</title>
 </head>
 
-<body class="">
+<body class="container mt-1">
+    <nav>
+        <a href="{% url 'accounts:signup' %}" class="bs-arror-links">
+            <i class="fas fa-arrow-left fa-xs text-success"></i>
+        </a> 
+        <span class="bs-thick-font">Fund</span>
+        <hr />
+    </nav>
+
     {% if not user.unique_tag %}
     <div class="container mt-5">
         <h5 class="text-secondary text-center">Choose a &#x20A6;EasyPay tag your unique name for getting paid by anyone</h5>
@@ -16,9 +24,7 @@
                     <form method="post">
                         {% csrf_token %}
                         <input type="hidden" name="phone_number" value="{{ user.phone_number }}" id="id_phone_number">
-                        
                         {{ form|crispy }}
-                        <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-sm">back</a>
                         <button type="submit" class="btn btn-primary btn-sm float-right" name="register">Next</button>
                     </form>
                 </div>
